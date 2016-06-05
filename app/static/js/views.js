@@ -90,7 +90,6 @@ var app = app || {};
 	  		name: this.input.val().trim(),
 	  		//Placeholder for now
 	  		session: 'session1'
-
 	  	};
 	  },
 	  addOne: function(title){
