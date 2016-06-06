@@ -31,6 +31,18 @@ var app = app || {};
 	  }
 	});
 
+	app.RatedIdeaView = Backbone.View.extend({
+	  template: _.template($('#rated-idea-template').html()),
+	  render: function(){
+	    this.$el.html(this.template(this.model.toJSON()));
+	    return this;
+	  },
+	  initialize: function(){
+	    this.render();
+	  }
+	});	
+
+
 
 
 	//----------------------
@@ -89,7 +101,7 @@ var app = app || {};
 	  	return {
 	  		name: this.input.val().trim(),
 	  		//Placeholder for now
-	  		session: 'session1'
+	  		session: 'session'
 	  	};
 	  },
 	  addOne: function(title){
@@ -99,6 +111,40 @@ var app = app || {};
 	  addAll: function(){
 	    this.$('#unrated-list').html('');
 	    app.unratedIdeaList.each(this.addOne, this);
+	  }
+	});
+
+	app.RatedIdeaListView = Backbone.View.extend({
+	  el: '#container',
+	  initialize: function(){
+	    app.ratedIdeaList.on('add', this.addAll, this);
+	    this.addAll();
+	  },
+	  events: {
+	    'keypress .score' : 'update_Score'
+	  },
+	  addOne: function(title){
+	    var view = new app.RatedIdeaView({model: title});
+	    $('#rated-list').append(view.render().el)
+	  },
+	  addAll: function(){
+	    this.$('#rated-list').html('');
+	    app.ratedIdeaList.each(this.addOne, this);
+	  },
+	  ratedIdea: function(idea, score) {
+	  	return {
+	  		name: idea,
+	  		session: 'session',
+	  		score: score
+	  	};
+	  },
+	  update_Score: function(e){
+		if (e.which !== 13 || e.target.value.trim() == ""){
+	    	return;
+	    };
+		idea = e.target.name;
+	  	score = e.target.value;
+	  	app.ratedIdeaList.create(this.ratedIdea(idea, score));
 	  }
 	});
 

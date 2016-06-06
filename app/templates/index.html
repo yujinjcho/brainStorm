@@ -20,7 +20,7 @@
 				<div id="company">BrainStorm</div>
 			</div>
 
-			<input type="text" id="session-name" placeholder="New Session">
+			<input type="text" id="session-name" placeholder="New Session" maxlength="15">
 			
 			<div id='brainstorm-list'>
 				<!--
@@ -30,7 +30,7 @@
 		</div>
 
 		<div id="navbar">
-			<input type="text" id="new-idea" placeholder="New Idea">
+			<input type="text" id="new-idea" placeholder="New Idea" maxlength="25">
 			<div id="account">
 				<a href="" id="guest-message">Create Account</a>
 				
@@ -58,13 +58,6 @@
 		</div>
 
 		<div class="idea-container rated" id="rated-list">
-			<div class="idea">Idea</div>
-			<div class="idea">Idea</div>
-			<div class="idea">Idea</div>
-			<div class="idea">Idea</div>
-			<div class="idea">Idea</div>
-			<div class="idea">Idea</div>
-			
 		</div>
 	</div>
 
@@ -81,15 +74,16 @@
 	  <script type="text/template" id="idea-template">
 	    <div class="idea">
 	    	
-	    	<!--<%- name %>-->
 	    	<div class="idea-name"><%- name %></div>
+	    	<input type="number" max=10 min=0 name="<%- name %>" class="score" placeholder="1-10">
+	    </div>
+	  </script>
+
+	  <script type="text/template" id="rated-idea-template">
+	    <div class="idea">
 	    	
-	    	<select class="score">
-	    	  <option value=''> </option>    
-	    	  {% for n in range(1,11) %}
-	    	  	<option value={{ n }}> {{ n }} </option>    
-	    	  {% endfor %}  
-	    	</select>
+	    	<div class="idea-name"><%- name %></div>
+	    	<div class="avg-score"><%- score %></div>
 	    </div>
 	  </script>
 
@@ -121,6 +115,9 @@
 
 	    app.unratedIdeaList.reset( {{ unrated | tojson }} );
 	    app.unratedIdeaListView = new app.UnratedIdeaListView;
+
+	    app.ratedIdeaList.reset( {{ rated | tojson }} );
+	    app.ratedIdeaListView = new app.RatedIdeaListView;
 	  </script>
 
 </body>

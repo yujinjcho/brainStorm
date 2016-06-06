@@ -45,18 +45,17 @@ div#company {
 }
 
 input#session-name {
-	width: 120px;
+	width: 150px;
 	border: 1px solid rgba(190, 190, 190, 1);
 	margin-left: 20px;
 	margin-bottom: 10px;
 }
 
 div.sessions {
-	
 	height: 30px;
-	width: 180px;
+	width: 200px;
 	line-height: 30px;
-	padding-left: 30px;
+	padding-left: 20px;
 }
 
 div.sessions:hover {
@@ -87,18 +86,27 @@ div#account {
 
 input#new-idea {
 	top: 60px;
-	left: 210px;
+	left: 212px;
 	position: absolute;
+	width: 200px;
 }
 
 div.idea-name {
-	width: 256px;
+	width: 255px;
 	height: 30px;
 	display: inline-block;
 }
 
-select.score {
+input.score {
 	display: inline-block;
+	width: 47px;
+	height: 21px;
+	border: 1px solid rgba(180,180,180,1);
+}
+
+div.avg-score {
+	display: inline-block;
+	margin-left: 25px;
 }
 
 a#guest-message {

@@ -15,5 +15,6 @@ var app = app || {};
 
 	app.sessionList = new SessionList();
 	app.unratedIdeaList = new ideaList();
+	app.ratedIdeaList = new ideaList();
 
 })();
