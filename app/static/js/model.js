@@ -11,7 +11,10 @@ var app = app || {};
 	});
 
 	app.Idea = Backbone.Model.extend({
-		defaults:{session:'', name:''}
+		defaults : {
+			session : '', 
+			name : ''
+		}
 	});
 
 })();

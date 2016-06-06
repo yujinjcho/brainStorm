@@ -1,14 +1,21 @@
-from app import app
+from app import app, db
 from flask import render_template, request, jsonify, url_for
+from models import Sessions, Unranked, Ranked
 
-groups = [{"title": "session"}]
-unrated_ideas = []
 rated_ideas = [{"session":"session 1","name":"yooo","score":8}]
 active_session = "session1"
 
-
 @app.route('/')
 def index():
+	groups_query = Sessions.query.all()
+	groups = [{"id": group.id, "title": group.title} for group in groups_query]
+
+	unrated_query = Unranked.query.all()
+	unrated_ideas = [
+		{"id": unrated.id, "session": unrated.session, "name": unrated.name}
+		 for unrated in unrated_query
+	]	
+
 	return render_template(
 		'index.html', 
 		sessions = groups, 
@@ -21,14 +28,15 @@ def index():
 def group_create():
 	if request.method == 'POST':
 		group = request.get_json()
-		groups.append({"title": group['title']})
+		new_group = Sessions(title = group['title'])
+		db.session.add(new_group)
+		db.session.commit()
 		return _todo_response(group)
 
 @app.route('/ideas', methods=['POST'])
 def idea_create():
 	if request.method == 'POST':
 		idea = request.get_json()
-		
 		if 'score' in idea:
 			rated_ideas.append({
 				"session": idea['session'], 
@@ -36,7 +44,9 @@ def idea_create():
 				"score": idea['score']
 			})
 		else:
-			unrated_ideas.append({"session": idea['session'], "name": idea['name']})
+			new_idea = Unranked(session = idea['session'], name = idea['name'])
+			db.session.add(new_idea)
+			db.session.commit()
 		return _todo_response(idea)
 
 def _todo_response(data):

@@ -30,7 +30,7 @@
 		</div>
 
 		<div id="navbar">
-			<input type="text" id="new-idea" placeholder="New Idea" maxlength="25">
+			<input type="text" id="new-idea" placeholder="New Idea" maxlength="25" name = "{{ active_session }}">
 			<div id="account">
 				<a href="" id="guest-message">Create Account</a>
 				
@@ -75,7 +75,7 @@
 	    <div class="idea">
 	    	
 	    	<div class="idea-name"><%- name %></div>
-	    	<input type="number" max=10 min=0 name="<%- name %>" class="score" placeholder="1-10">
+	    	<input type="number" max="10" min="1" name="<%- name %>" class="score" placeholder="1-10">
 	    </div>
 	  </script>
 

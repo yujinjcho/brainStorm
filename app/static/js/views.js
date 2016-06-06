@@ -100,8 +100,7 @@ var app = app || {};
 	  newIdea: function() {
 	  	return {
 	  		name: this.input.val().trim(),
-	  		//Placeholder for now
-	  		session: 'session'
+	  		session: document.getElementById('new-idea').getAttribute('name')
 	  	};
 	  },
 	  addOne: function(title){
@@ -139,7 +138,10 @@ var app = app || {};
 	  	};
 	  },
 	  update_Score: function(e){
-		if (e.which !== 13 || e.target.value.trim() == ""){
+		if (e.which !== 13 || 
+				e.target.value.trim() == "" || 
+				e.target.value > 10 ||
+				e.target.value < 0){
 	    	return;
 	    };
 		idea = e.target.name;
