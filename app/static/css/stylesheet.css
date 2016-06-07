@@ -51,14 +51,14 @@ input#session-name {
 	margin-bottom: 10px;
 }
 
-div.sessions {
+form.sessions {
 	height: 30px;
 	width: 200px;
 	line-height: 30px;
 	padding-left: 20px;
 }
 
-div.sessions:hover {
+form.sessions:hover {
 	background: rgba(230, 230, 230, 1);
 	cursor: pointer;
 }

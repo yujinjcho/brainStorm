@@ -3,7 +3,7 @@ from flask import render_template, request, jsonify, url_for
 from models import Sessions, Unranked, Ranked
 
 rated_ideas = [{"session":"session 1","name":"yooo","score":8}]
-active_session = "session1"
+active_session = "1"
 
 @app.route('/')
 def index():
@@ -24,12 +24,23 @@ def index():
 		active_session = active_session
 	)
 
+
+def json_view (self):
+        return {"id": self.id, "title": self.title}
+
+@app.route('/sessions')
+def get_group():
+	groups_query = Sessions.query.all()	
+	return jsonify(collection=[json_view(i) for i in groups_query])
+
 @app.route('/sessions', methods=['POST'])
 def group_create():
 	if request.method == 'POST':
 		group = request.get_json()
 		new_group = Sessions(title = group['title'])
 		db.session.add(new_group)
+		db.session.flush()
+		group = {"id": new_group.id, "title": new_group.title}
 		db.session.commit()
 		return _todo_response(group)
 
@@ -51,3 +62,9 @@ def idea_create():
 
 def _todo_response(data):
     return jsonify(**data)
+
+'''
+def _todo_response_list(data_list):
+    groups = [{"id": group.id, "title": group.title} for group in data_list]
+    return jsonify(collection = groups)
+'''

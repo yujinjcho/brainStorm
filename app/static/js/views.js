@@ -62,8 +62,11 @@ var app = app || {};
 	    if (e.which !==13 || !this.input.val().trim()){
 	    	return;
 	    };
-	    app.sessionList.create(this.newSession());
+	    app.sessionList.create(this.newSession(), {wait:true, success: this.addSessionCallback});
 	    this.input.val('');
+	  },
+	  addSessionCallback: function() {
+	  	this.addAll;
 	  },
 	  newSession: function() {
 	  	return {
@@ -88,7 +91,8 @@ var app = app || {};
 	    this.addAll();
 	  },
 	  events: {
-	    'keypress #new-idea' : 'add_Idea'
+	    'keypress input#new-idea' : 'add_Idea',
+	    'click form.sessions' : 'change_Session'
 	  },
 	  add_Idea: function(e){
 	    if (e.which !== 13 || !this.input.val().trim()){
@@ -110,6 +114,10 @@ var app = app || {};
 	  addAll: function(){
 	    this.$('#unrated-list').html('');
 	    app.unratedIdeaList.each(this.addOne, this);
+	  },
+	  change_Session: function(e){	  	
+	  	document.getElementById('new-idea').setAttribute('name', e.target.name);
+	  	app.unratedIdeaList.where({id: e.target.name})
 	  }
 	});
 
@@ -144,8 +152,8 @@ var app = app || {};
 				e.target.value < 0){
 	    	return;
 	    };
-		idea = e.target.name;
-	  	score = e.target.value;
+		var idea = e.target.name;
+	  	var score = e.target.value;
 	  	app.ratedIdeaList.create(this.ratedIdea(idea, score));
 	  }
 	});

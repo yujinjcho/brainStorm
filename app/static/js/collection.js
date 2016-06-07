@@ -5,7 +5,10 @@ var app = app || {};
 
 	var SessionList = Backbone.Collection.extend({
 	  model: app.Session,
-	  url: '/sessions'
+	  url: '/sessions',
+	  parse: function(response){
+	  	return response.collection;
+	  }
 	});
 
 	var ideaList = Backbone.Collection.extend({
