@@ -63,14 +63,13 @@
 	  <!-- Templates -->
 	  <!-- ========= -->
 	  <script type="text/template" id="session-template">
-	    <form class="sessions" name="<%- id %>">
+	    <form class="sessions" id="<%- id %>">
 	    	<i class="fa fa-bars" aria-hidden="true"></i>&nbsp&nbsp <%- title %>
 	    </form>		
 	  </script>
 
 	  <script type="text/template" id="idea-template">
 	    <div class="idea">
-	    	
 	    	<div class="idea-name"><%- name %></div>
 	    	<input type="number" max="10" min="1" name="<%- name %>" class="score" placeholder="1-10">
 	    </div>
@@ -112,6 +111,8 @@
 
 	    app.unratedIdeaList.reset( {{ unrated | tojson }} );
 	    app.unratedIdeaListView = new app.UnratedIdeaListView;
+	    //app.unratedIdeaListView.addSome();
+
 
 	    app.ratedIdeaList.reset( {{ rated | tojson }} );
 	    app.ratedIdeaListView = new app.RatedIdeaListView;

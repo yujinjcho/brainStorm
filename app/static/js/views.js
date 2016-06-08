@@ -44,13 +44,13 @@ var app = app || {};
 
 
 
-
 	//----------------------
 	// Collection View
 	//----------------------
 	app.SessionListView = Backbone.View.extend({
 	  el: '#container',
 	  initialize: function(){
+	    app.active_session = document.getElementById('new-idea');
 	    this.input = this.$('#session-name');
 	    app.sessionList.on('add', this.addAll, this);
 	    this.addAll();
@@ -87,9 +87,10 @@ var app = app || {};
 	  el: '#container',
 	  initialize: function(){
 	    this.input = this.$('#new-idea');
+	    app.active_session = document.getElementById('new-idea');
 	    app.unratedIdeaList.on('add', this.addSome, this);
 	    app.unratedIdeaList.on('reset', this.addSome, this);
-	    this.addAll();
+	    this.addSome();
 	  },
 	  events: {
 	    'keypress input#new-idea' : 'add_Idea',
@@ -108,31 +109,28 @@ var app = app || {};
 	  		session: document.getElementById('new-idea').getAttribute('name')
 	  	};
 	  },
-	  addOne: function(title){
-	    var view = new app.IdeaView({model: title});
-	    $('#unrated-list').append(view.render().el)
-	  },
 	  addOneIf: function(title){
-	    if (app.active_session == title.get('session')){
+	    if (app.active_session.name == title.get('session')){
 	    	var view = new app.IdeaView({model: title});
 	    	$('#unrated-list').append(view.render().el);	
 	    };
 	  },
-	  addAll: function(){
-	    this.$('#unrated-list').html('');
-	    app.unratedIdeaList.each(this.addOne, this);
-	  },
-	  addSome: function(){
-	    app.active_session = document.getElementById('new-idea').name;
+	  addSome: function(){ 
 	    this.$('#unrated-list').html('');
 	    app.unratedIdeaList.each(this.addOneIf, this);
+	    app.sessionList.each(this.activeSession, this);
+	  },
+	  activeSession: function(session){
+	  	debugger;
+	  	if (app.active_session.name == session.get('id')){
+	  		document.getElementById(app.active_session.name).setAttribute('style', 'background-color: rgba(220, 220, 220, 1)');
+	  	} else {
+	  		document.getElementById(session.get('id')).setAttribute('style', '');
+	  	};
 	  },
 	  change_Session: function(e){	  	
-	  	document.getElementById('new-idea').setAttribute('name', e.target.name);
-	  	app.unratedIdeaList.fetch();
-	  },
-	  addAllCallback: function(){
-	  	this.addAll;
+	  	app.active_session.setAttribute('name', e.target.id);
+	  	this.addSome();
 	  }
 	});
 

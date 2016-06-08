@@ -4,7 +4,7 @@ from models import Sessions, Unranked, Ranked
 from sqlalchemy import desc
 
 rated_ideas = [{"session":"session 1","name":"yooo","score":8}]
-active_session = "1"
+
 
 @app.route('/')
 def index():
@@ -15,7 +15,8 @@ def index():
 	} for group in groups_query]
 	active_session = groups_query[0].id
 
-	unrated_query = Unranked.query.filter_by(session=str(active_session)).all()
+	#unrated_query = Unranked.query.filter_by(session=str(active_session)).all()
+	unrated_query = Unranked.query.all()
 	unrated_ideas = [
 		{"id": unrated.id, "session": unrated.session, "name": unrated.name}
 		 for unrated in unrated_query
@@ -32,10 +33,12 @@ def index():
 def json_view (self):
         return {"id": self.id, "title": self.title}
 
+'''
 @app.route('/sessions')
 def get_group():
 	groups_query = Sessions.query.all()	
 	return jsonify(collection=[json_view(i) for i in groups_query])
+'''
 
 @app.route('/sessions', methods=['POST'])
 def group_create():
