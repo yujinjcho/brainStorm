@@ -121,11 +121,10 @@ var app = app || {};
 	    app.sessionList.each(this.activeSession, this);
 	  },
 	  activeSession: function(session){
-	  	debugger;
 	  	if (app.active_session.name == session.get('id')){
 	  		document.getElementById(app.active_session.name).setAttribute('style', 'background-color: rgba(220, 220, 220, 1)');
 	  	} else {
-	  		document.getElementById(session.get('id')).setAttribute('style', '');
+	  		document.getElementById(session.get('id')).setAttribute('style', 'None');
 	  	};
 	  },
 	  change_Session: function(e){	  	

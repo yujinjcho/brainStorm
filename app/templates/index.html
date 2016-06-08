@@ -17,6 +17,7 @@
 			<div id="logo">			
 				<i class="fa fa-cloud fa-2x" aria-hidden="true"></i>
 				<div id="company">BrainStorm</div>
+				<div></div>
 			</div>
 
 			<input type="text" id="session-name" placeholder="New Session" maxlength="15">
@@ -28,12 +29,26 @@
 
 		<div id="navbar">
 			<input type="text" id="new-idea" placeholder="New Idea" maxlength="25" name = "{{ active_session }}">
-			<div id="account">
-				<a href="" id="guest-message">Create Account</a>
-				
-				<div  id="new-session"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New Session</div>
-				
-				<div id="account-name">Guest <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></div>
+			
+			<div id="account">	
+				<div class="dropdown">
+				  <button class="btn dropdown-toggle account" type="button" data-toggle="dropdown" style="background-color: white">
+				  	{% if g.user.is_authenticated %}
+				  		{{ user.name }}
+				  	{% else %}
+				  		Account
+				  	{% endif %}
+				  <span class="caret"></span></button>
+				  <ul class="dropdown-menu" style="text-align: center">
+				    {% if g.user.is_authenticated %}
+				  		<li><a href="{{ url_for('logout') }}">Logout</a></li>
+				  	{% else %}
+				  		<li><a href="{{ url_for('login') }}">Login via Facebook</a></li>
+				  	{% endif %}
+
+
+				  </ul>
+				</div>
 			</div>
 
 			
