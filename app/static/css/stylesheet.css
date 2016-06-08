@@ -26,8 +26,9 @@ div#left-bar {
 
 div#brainstorm-list {
 	width: 200px;
-	height: 400px;
-	overflow: auto;
+	height: 300px;
+	overflow-y: auto;
+	overflow-x: hidden;
 }
 
 div#logo {
