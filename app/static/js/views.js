@@ -87,7 +87,8 @@ var app = app || {};
 	  el: '#container',
 	  initialize: function(){
 	    this.input = this.$('#new-idea');
-	    app.unratedIdeaList.on('add', this.addAll, this);
+	    app.unratedIdeaList.on('add', this.addSome, this);
+	    app.unratedIdeaList.on('reset', this.addSome, this);
 	    this.addAll();
 	  },
 	  events: {
@@ -111,13 +112,27 @@ var app = app || {};
 	    var view = new app.IdeaView({model: title});
 	    $('#unrated-list').append(view.render().el)
 	  },
+	  addOneIf: function(title){
+	    if (app.active_session == title.get('session')){
+	    	var view = new app.IdeaView({model: title});
+	    	$('#unrated-list').append(view.render().el);	
+	    };
+	  },
 	  addAll: function(){
 	    this.$('#unrated-list').html('');
 	    app.unratedIdeaList.each(this.addOne, this);
 	  },
+	  addSome: function(){
+	    app.active_session = document.getElementById('new-idea').name;
+	    this.$('#unrated-list').html('');
+	    app.unratedIdeaList.each(this.addOneIf, this);
+	  },
 	  change_Session: function(e){	  	
 	  	document.getElementById('new-idea').setAttribute('name', e.target.name);
-	  	app.unratedIdeaList.where({id: e.target.name})
+	  	app.unratedIdeaList.fetch();
+	  },
+	  addAllCallback: function(){
+	  	this.addAll;
 	  }
 	});
 
