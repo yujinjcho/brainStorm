@@ -80,7 +80,18 @@ var app = app || {};
 	  addAll: function(){
 	    this.$('#brainstorm-list').html('');
 	    app.sessionList.each(this.addOne, this);
-	  }
+	    this.sessionHighlight()
+	  },
+	  sessionHighlight: function() {
+	  	app.sessionList.each(this.activeSession, this);
+	  },
+	  activeSession: function(session){
+	  	if (app.active_session.name == session.get('id')){
+	  		document.getElementById(app.active_session.name).setAttribute('style', 'background-color: rgba(220, 220, 220, 1)');
+	  	} else {
+	  		document.getElementById(session.get('id')).setAttribute('style', 'None');
+	  	};
+	  },
 	});
 
 	app.UnratedIdeaListView = Backbone.View.extend({
@@ -118,14 +129,7 @@ var app = app || {};
 	  addSome: function(){ 
 	    this.$('#unrated-list').html('');
 	    app.unratedIdeaList.each(this.addOneIf, this);
-	    app.sessionList.each(this.activeSession, this);
-	  },
-	  activeSession: function(session){
-	  	if (app.active_session.name == session.get('id')){
-	  		document.getElementById(app.active_session.name).setAttribute('style', 'background-color: rgba(220, 220, 220, 1)');
-	  	} else {
-	  		document.getElementById(session.get('id')).setAttribute('style', 'None');
-	  	};
+	    app.sessionListView.sessionHighlight();
 	  },
 	  change_Session: function(e){	  	
 	  	app.active_session.setAttribute('name', e.target.id);

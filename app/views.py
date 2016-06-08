@@ -33,9 +33,10 @@ def get_current_user():
 
 @app.route('/')
 def index():
-	try:
-		groups_query = Sessions.query.filter(Sessions.creator == current_user.id).order_by(desc(Sessions.lastModified)).all()
-	except:
+	if g.user.is_authenticated:
+		groups_query = Sessions.query.filter(Sessions.creator == current_user.id)\
+		.order_by(desc(Sessions.lastModified)).all()
+	else:
 		groups_query = Sessions.query.order_by(desc(Sessions.lastModified)).all()
 
 	groups = [{
@@ -48,7 +49,9 @@ def index():
 	except:
 		active_session = None
 
-	unrated_query = Unranked.query.all()
+	group_set = set([str(group.id) for group in groups_query])
+
+	unrated_query = Unranked.query.filter(Unranked.session.in_(group_set)).all()
 	unrated_ideas = [
 		{"id": unrated.id, "session": unrated.session, "name": unrated.name}
 		 for unrated in unrated_query
