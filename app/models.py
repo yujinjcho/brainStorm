@@ -1,5 +1,6 @@
 from app import db
 from datetime import datetime
+from sqlalchemy_utils import aggregated
 
 class Sessions(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
@@ -9,8 +10,9 @@ class Sessions(db.Model):
 
 class Unranked(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
-    session = db.Column(db.String, nullable=False)
+    session = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String, nullable=False)
+    avg_score = db.Column(db.Numeric(3,1), default=None)
 
 class Ranked(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
@@ -18,6 +20,12 @@ class Ranked(db.Model):
     name = db.Column(db.String, nullable=False)
     score = db.Column(db.Integer, nullable=False)
 
+class Score(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    unranked_id = db.Column(db.Integer, db.ForeignKey('unranked.id'))
+    unranked = db.relationship('Unranked',backref=db.backref('scores',lazy='dynamic'))
+    user_id = db.Column(db.Integer, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
 
 class User(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
@@ -47,3 +55,4 @@ class User(db.Model):
             return unicode(self.id)  # python 2
         except NameError:
             return str(self.id)  # python 3
+

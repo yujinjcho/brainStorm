@@ -62,7 +62,7 @@ var app = app || {};
 	    if (e.which !==13 || !this.input.val().trim()){
 	    	return;
 	    };
-	    app.sessionList.create(this.newSession(), {wait:true, success: this.addSessionCallback});
+	    app.sessionList.create(this.newSession(), {wait:true});
 	    this.input.val('');
 	  },
 	  addSessionCallback: function() {
@@ -111,8 +111,11 @@ var app = app || {};
 	    if (e.which !== 13 || !this.input.val().trim()){
 	    	return;
 	    };
-	    app.unratedIdeaList.create(this.newIdea());
+	    app.unratedIdeaList.create(this.newIdea(), {wait:true});
 	    this.input.val('');
+	  },
+	  add_ideaCallback: function() {
+	  	this.addSome;
 	  },
 	  newIdea: function() {
 	  	return {
@@ -120,9 +123,9 @@ var app = app || {};
 	  		session: document.getElementById('new-idea').getAttribute('name')
 	  	};
 	  },
-	  addOneIf: function(title){
-	    if (app.active_session.name == title.get('session')){
-	    	var view = new app.IdeaView({model: title});
+	  addOneIf: function(idea){
+	    if (app.active_session.name == idea.get('session')){
+	    	var view = new app.IdeaView({model: idea});
 	    	$('#unrated-list').append(view.render().el);	
 	    };
 	  },
@@ -154,11 +157,10 @@ var app = app || {};
 	    this.$('#rated-list').html('');
 	    app.ratedIdeaList.each(this.addOne, this);
 	  },
-	  ratedIdea: function(idea, score) {
+	  ratedIdea: function(unranked_id, score) {
 	  	return {
-	  		name: idea,
-	  		session: 'session',
-	  		score: score
+	  		"unranked_id": unranked_id,
+	  		"score": score
 	  	};
 	  },
 	  update_Score: function(e){
@@ -168,9 +170,10 @@ var app = app || {};
 				e.target.value < 0){
 	    	return;
 	    };
-		var idea = e.target.name;
+		var idea = e.target.id.slice(1);
 	  	var score = e.target.value;
-	  	app.ratedIdeaList.create(this.ratedIdea(idea, score));
+	  	app.scoreList.create(this.ratedIdea(idea, score));
+	  	e.target.value == ""
 	  }
 	});
 

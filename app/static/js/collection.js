@@ -11,13 +11,19 @@ var app = app || {};
 	  }
 	});
 
-	var ideaList = Backbone.Collection.extend({
+	var IdeaList = Backbone.Collection.extend({
 		model: app.Idea,
 		url: '/ideas'
 	});
 
+	var ScoreList = Backbone.Collection.extend({
+		model: app.Score,
+		url: '/scores'
+	});
+
 	app.sessionList = new SessionList();
-	app.unratedIdeaList = new ideaList();
-	app.ratedIdeaList = new ideaList();
+	app.unratedIdeaList = new IdeaList();
+	app.ratedIdeaList = new IdeaList();
+	app.scoreList = new ScoreList();
 
 })();

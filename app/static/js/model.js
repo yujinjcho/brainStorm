@@ -17,4 +17,12 @@ var app = app || {};
 		}
 	});
 
+	app.Score = Backbone.Model.extend({
+		defaults : {
+			unranked_id: '',
+			user_id: '',
+			score: '',
+		}
+	})
+
 })();
