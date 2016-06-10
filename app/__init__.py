@@ -25,5 +25,4 @@ facebook = oauth.remote_app(
 )
 
 
-
 from app import views, models

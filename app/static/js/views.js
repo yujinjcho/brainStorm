@@ -100,6 +100,7 @@ var app = app || {};
 	    this.input = this.$('#new-idea');
 	    app.active_session = document.getElementById('new-idea');
 	    app.unratedIdeaList.on('add', this.addSome, this);
+      app.unratedIdeaList.on('remove', this.addSome, this);
 	    app.unratedIdeaList.on('reset', this.addSome, this);
 	    this.addSome();
 	  },
@@ -137,14 +138,15 @@ var app = app || {};
 	  change_Session: function(e){	  	
 	  	app.active_session.setAttribute('name', e.target.id);
 	  	this.addSome();
+	  	app.ratedIdeaListView.addSome();
 	  }
 	});
 
 	app.RatedIdeaListView = Backbone.View.extend({
 	  el: '#container',
 	  initialize: function(){
-	    app.ratedIdeaList.on('add', this.addAll, this);
-	    this.addAll();
+	    app.ratedIdeaList.on('reset', this.addSome, this);
+	    this.addSome();
 	  },
 	  events: {
 	    'keypress .score' : 'update_Score'
@@ -172,9 +174,24 @@ var app = app || {};
 	    };
 		var idea = e.target.id.slice(1);
 	  	var score = e.target.value;
-	  	app.scoreList.create(this.ratedIdea(idea, score));
-	  	e.target.value == ""
-	  }
+	  	$.when(
+	  	  app.scoreList.create(this.ratedIdea(idea, score))
+	  	).then(function(){
+        app.ratedIdeaList.fetch({wait:true, reset:true});
+	  	}).then(function(){
+        app.unratedIdeaList.remove(app.unratedIdeaList.get(parseInt(idea)));
+      })
+	  },
+	  addOneIf: function(idea){
+      if (app.active_session.name == idea.get('session')){
+	    	var view = new app.RatedIdeaView({model: idea});
+	    	$('#rated-list').append(view.render().el);	
+	    };
+	  },
+	  addSome: function(){ 
+      this.$('#rated-list').html('');
+	    app.ratedIdeaList.each(this.addOneIf, this);
+	  },
 	});
 
 

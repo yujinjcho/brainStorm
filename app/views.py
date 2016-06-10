@@ -55,16 +55,16 @@ def index():
 
 	group_set = set([int(group.id) for group in groups_query])
 	scores = Score.query.filter(Score.user_id == g.user.id).all()
-	scores_list = [score.id for score in scores]
-
+	scores_list = [score.unranked_id for score in scores]
 	unrated_query = Unranked.query.filter(Unranked.session.in_(group_set)).all()
+	
 	unrated_ideas = [
 		{"id": unrated.id, "session": unrated.session, "name": unrated.name}
 		 for unrated in unrated_query
 		 if unrated.id not in scores_list
 	]
 	rated_ideas = [
-		{"id": unrated.id, "session": unrated.session, "name": unrated.name}
+		{"id": unrated.id, "session": unrated.session, "name": unrated.name, "score": str(unrated.avg_score)}
 		 for unrated in unrated_query
 		 if unrated.id in scores_list
 	]
@@ -106,12 +106,45 @@ def group_create():
 
 @app.route('/ideas')
 def get_ideas():    
-    unrated_query = Unranked.query.all()
-    unrated_ideas = [
-        {"id": unrated.id, "session": unrated.session, "name": unrated.name}
-         for unrated in unrated_query
-    ]
-    return jsonify(unrated_ideas)
+	if g.user.is_authenticated:
+		groups_query = Sessions.query.filter(Sessions.creator == g.user.id)\
+		.order_by(desc(Sessions.lastModified)).all()
+	else:
+		groups_query = Sessions.query.order_by(desc(Sessions.lastModified)).all()
+
+	groups = [{
+		"id": group.id, 
+		"title": group.title
+	} for group in groups_query]
+	
+	try:
+		active_session = groups_query[0].id
+	except:
+		active_session = None
+
+	group_set = set([int(group.id) for group in groups_query])
+	scores = Score.query.filter(Score.user_id == g.user.id).all()
+	scores_list = [score.unranked_id for score in scores]
+	unrated_query = Unranked.query.filter(Unranked.session.in_(group_set)).all()
+	
+	rated_ideas = [
+		{"id": unrated.id, "session": unrated.session, "name": unrated.name, "score": str(unrated.avg_score)}
+		 for unrated in unrated_query
+		 if unrated.id in scores_list
+	]
+	return jsonify(rated_ideas)
+
+@app.route('/idea-model')
+def refresh_model():    
+    model_id = request.args.get('id')
+    idea = Unranked.query.filter(Unranked.id==model_id).first()
+    updated_idea = {
+    	"id": idea.id,
+    	"session": idea.session, 
+    	"name": idea.name, 
+    	"score": str(idea.avg_score)
+    }
+    return jsonify(updated_idea)
 
 @app.route('/ideas', methods=['POST'])
 def idea_create():
@@ -221,10 +254,12 @@ def load_user(id):
 #TEST
 @app.route('/query')
 def query_test():    
-    score = Score(unranked_id=4, user_id=2, score=0)
+    score = Score(unranked_id=30, user_id=2, score=0)
     db.session.add(score)
     db.session.commit()
+    updateAverage(30)
     return 'done'
+
 
 @app.route('/query2')
 def query_test2():    

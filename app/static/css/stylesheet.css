@@ -107,6 +107,8 @@ input.score {
 div.avg-score {
 	display: inline-block;
 	margin-left: 25px;
+	text-align: right;
+	width: 30px;
 }
 
 a#guest-message {
