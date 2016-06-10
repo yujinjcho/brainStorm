@@ -241,4 +241,6 @@ ul.dropdown-menu {
 	right: 0px;
 }
 
-
+.no-show {
+	display: none;
+}

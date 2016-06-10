@@ -24,6 +24,9 @@ var app = app || {};
 	app.sessionList = new SessionList();
 	app.unratedIdeaList = new IdeaList();
 	app.ratedIdeaList = new IdeaList();
+	app.ratedIdeaList.comparator = function(att){
+		return -parseInt(att.get('score'));
+	};
 	app.scoreList = new ScoreList();
 
 })();

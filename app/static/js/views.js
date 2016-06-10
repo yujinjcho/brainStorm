@@ -100,13 +100,15 @@ var app = app || {};
 	    this.input = this.$('#new-idea');
 	    app.active_session = document.getElementById('new-idea');
 	    app.unratedIdeaList.on('add', this.addSome, this);
-      app.unratedIdeaList.on('remove', this.addSome, this);
+      	app.unratedIdeaList.on('remove', this.addSome, this);
 	    app.unratedIdeaList.on('reset', this.addSome, this);
 	    this.addSome();
 	  },
 	  events: {
 	    'keypress input#new-idea' : 'add_Idea',
-	    'click form.sessions' : 'change_Session'
+	    'click form.sessions' : 'change_Session',
+      'click a#manage-sessions' : 'manageSessions',
+      'click a#show-sessions' : 'showSessions'
 	  },
 	  add_Idea: function(e){
 	    if (e.which !== 13 || !this.input.val().trim()){
@@ -139,7 +141,37 @@ var app = app || {};
 	  	app.active_session.setAttribute('name', e.target.id);
 	  	this.addSome();
 	  	app.ratedIdeaListView.addSome();
-	  }
+	  },
+    manageSessions: function(){
+      debugger;
+      var viewElems = ['new-idea', 'unrated-list', 'rated-list', 'header1', 'header2'];
+      var viewLength = viewElems.length;
+      var toggleElems = ['user-header1', 'user-header2'];
+      var toggleLength = toggleElems.length;
+
+      for (var i = 0; i < viewLength; i++) {
+		document.getElementById(viewElems[i]).classList.add('no-show');      	
+      };
+
+      for (var i = 0; i < toggleLength; i++) {
+		document.getElementById(toggleElems[i]).classList.remove('no-show');      	
+      };
+    },
+    showSessions: function(){
+      var viewElems = ['new-idea', 'unrated-list', 'rated-list', 'header1', 'header2'];
+      var viewLength = viewElems.length;
+      var toggleElems = ['user-header1', 'user-header2'];
+      var toggleLength = toggleElems.length;
+
+      for (var i = 0; i < viewLength; i++) {
+		document.getElementById(viewElems[i]).classList.remove('no-show');      	
+      };
+
+      for (var i = 0; i < toggleLength; i++) {
+		document.getElementById(toggleElems[i]).classList.add('no-show');      	
+      };
+
+    }
 	});
 
 	app.RatedIdeaListView = Backbone.View.extend({

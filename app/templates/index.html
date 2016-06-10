@@ -41,6 +41,9 @@
 				  <span class="caret"></span></button>
 				  <ul class="dropdown-menu" style="text-align: center">
 				    {% if g.user.is_authenticated %}
+				  		<li><a href="#" id="show-sessions">Show Sessions</a></li>
+				  		<li><a href="#" id="manage-sessions">Manage Sessions</a></li>
+				  		<li role="separator" class="divider"></li>
 				  		<li><a href="{{ url_for('logout') }}">Logout</a></li>
 				  	{% else %}
 				  		<li><a href="{{ url_for('login') }}">Login via Facebook</a></li>
@@ -51,18 +54,27 @@
 				</div>
 			</div>
 
-			
-
-			<div class="idea-header">
+			<!--Header for ideas -->
+			<div class="idea-header" id="header1">
 				<div class="title name">Rate</div>
 				<div class="title">Score</div>
 			</div>
 
-			<div class="idea-header rated-header">
+			<div class="idea-header rated-header" id="header2">
 				<div class="title name">Rated</div>
 				<div class="title">Avg. Score</div>
 			</div>
 
+			<!--Header for user management -->
+			<div class="idea-header no-show" id="user-header1">
+				<div class="title name">Rate</div>
+				<div class="title">Score</div>
+			</div>
+
+			<div class="idea-header rated-header no-show" id="user-header2">
+				<div class="title name">Rated</div>
+				<div class="title">Avg. Score</div>
+			</div>
 		</div>
 
 		<!--contains unrated ideas-->
@@ -127,7 +139,6 @@
 	    app.unratedIdeaList.reset( {{ unrated | tojson }} );
 	    app.unratedIdeaListView = new app.UnratedIdeaListView;
 	    //app.unratedIdeaListView.addSome();
-
 
 	    app.ratedIdeaList.reset( {{ rated | tojson }} );
 	    app.ratedIdeaListView = new app.RatedIdeaListView;
