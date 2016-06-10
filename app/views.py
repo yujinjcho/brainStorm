@@ -216,7 +216,7 @@ def facebook_authorized():
 
     session['oauth_token'] = (resp['access_token'], '')
     me = facebook.get(
-        '/me/?fields=email,name,id,picture'
+        '/me/?fields=email,name,id,picture.height(200).width(200)'
     )
     return set_user(me)
 
@@ -251,6 +251,15 @@ def create_user(me):
 def load_user(id):
     return User.query.get(int(id))
 
+@app.route('/autocomplete/countries')
+def autocomplete_countries():
+	query = request.args.get('query')
+	query_term = '%'+'%'.join(query.split('+'))+'%'
+	users = User.query.filter(User.name.ilike(query_term)).all()
+	users_list = [{"value": user.name, "id":user.id} for user in users]
+	response = { "suggestions": users_list}
+	return jsonify(response)
+
 #TEST
 @app.route('/query')
 def query_test():    
@@ -258,6 +267,19 @@ def query_test():
     db.session.add(score)
     db.session.commit()
     updateAverage(30)
+    return 'done'
+
+@app.route('/create_user')
+def create_user():    
+    new_user = User(
+        auth_server_id=2,
+        name='user2',
+        email='email2',
+        profile_pic='profilepic'
+    )  
+
+    db.session.add(new_user)
+    db.session.commit()
     return 'done'
 
 

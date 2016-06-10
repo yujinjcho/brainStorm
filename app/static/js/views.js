@@ -103,6 +103,7 @@ var app = app || {};
       	app.unratedIdeaList.on('remove', this.addSome, this);
 	    app.unratedIdeaList.on('reset', this.addSome, this);
 	    this.addSome();
+	    this.manageSessions();
 	  },
 	  events: {
 	    'keypress input#new-idea' : 'add_Idea',
@@ -143,12 +144,13 @@ var app = app || {};
 	  	app.ratedIdeaListView.addSome();
 	  },
     manageSessions: function(){
-      debugger;
       var viewElems = ['new-idea', 'unrated-list', 'rated-list', 'header1', 'header2'];
       var viewLength = viewElems.length;
-      var toggleElems = ['user-header1', 'user-header2'];
+      
+      var toggleElems = ['user-header', 'autocomplete', 'user-container'];
       var toggleLength = toggleElems.length;
 
+      debugger;
       for (var i = 0; i < viewLength; i++) {
 		document.getElementById(viewElems[i]).classList.add('no-show');      	
       };
@@ -160,7 +162,8 @@ var app = app || {};
     showSessions: function(){
       var viewElems = ['new-idea', 'unrated-list', 'rated-list', 'header1', 'header2'];
       var viewLength = viewElems.length;
-      var toggleElems = ['user-header1', 'user-header2'];
+      
+      var toggleElems = ['user-header', 'autocomplete', 'user-container'];
       var toggleLength = toggleElems.length;
 
       for (var i = 0; i < viewLength; i++) {

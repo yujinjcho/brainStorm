@@ -244,3 +244,97 @@ ul.dropdown-menu {
 .no-show {
 	display: none;
 }
+
+#autocomplete {
+	top: 60px;
+	left: 212px;
+	position: absolute;
+	width: 200px;	
+}
+
+div#user-header {
+	width: 700px;
+}
+
+div#user-container {
+	height: 270px;
+	width: 675px;
+	position: absolute;
+	left: 217px;
+	top: 150px;
+	white-space: nowrap;
+	overflow-y: hidden;
+	overflow-x: scroll;
+}
+
+div#user-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+div#user-container::-webkit-scrollbar-thumb {
+    background-color: rgba(200,200,200,.7);
+}
+
+div.user-profile {
+	/*border: 1px solid gray;*/
+	height: 212px;
+	width: 160px;
+	display: inline-block;
+	position: relative;
+	margin: 5px 0px 5px 5px;
+	
+}
+
+div.user-pic {
+	/*border: 1px solid gray;*/
+	width: 160px;
+	height: 160px;
+	background-color: rgba(40,40,40,1);
+	background-image: url("https://scontent.xx.fbcdn.net/v/t1.0-1/p200x200/1896833_10201724429248014_982080163_n.jpg?oh=c61708318b3beeb385e0a9ea6709b8f1&oe=57A9179A")
+}
+
+div.user-name {
+	/*border: 1px solid gray;*/
+	width: 160px;
+	height: 50px;	
+	padding-left: 5px;
+	padding-top: 5px;
+	line-height: 20px;
+	background-color: rgba(230,230,230,1);
+	text-align: center;
+	white-space: pre-wrap;      /* CSS3 */   
+	white-space: -moz-pre-wrap; /* Firefox */    
+	white-space: -pre-wrap;     /* Opera <7 */   
+	white-space: -o-pre-wrap;   /* Opera 7 */    
+	word-wrap: break-word;  
+	font-weight: Bold;
+}
+
+.autocomplete-suggestions {
+	border: 1px solid gray;	
+	background: white;
+	overflow: auto;
+}
+
+.autocomplete-suggestions::-webkit-scrollbar {
+	width: 8px;
+}
+
+.autocomplete-suggestions::-webkit-scrollbar-thumb {
+	background-color: rgba(200,200,200,.7);
+}
+
+.autocomplete-suggestion {
+	background: white;
+	height: 30px;
+	padding-left: 10px;
+	padding-top: 5px;
+}
+
+.autocomplete-suggestion:hover {
+	background: rgba(230, 230, 230, 1);
+}
+
+.autocomplete-selected {
+	background: rgba(230, 230, 230, 1);
+}
