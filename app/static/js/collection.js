@@ -21,6 +21,16 @@ var app = app || {};
 		url: '/scores'
 	});
 
+	var PermissionList = Backbone.Collection.extend({
+		model: app.Permission,
+		url: '/permissions'
+	});
+
+	var UserList = Backbone.Collection.extend({
+		model: app.User,
+		url: '/users'
+	})
+
 	app.sessionList = new SessionList();
 	app.unratedIdeaList = new IdeaList();
 	app.ratedIdeaList = new IdeaList();
@@ -28,5 +38,7 @@ var app = app || {};
 		return -parseInt(att.get('score'));
 	};
 	app.scoreList = new ScoreList();
+	app.permissionList = new PermissionList();
+	app.userList = new UserList();
 
 })();

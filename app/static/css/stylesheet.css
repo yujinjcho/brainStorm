@@ -289,7 +289,9 @@ div.user-pic {
 	width: 160px;
 	height: 160px;
 	background-size: 100% 100%;
+	/*
 	background-image: url("https://scontent.xx.fbcdn.net/v/t1.0-1/p200x200/1896833_10201724429248014_982080163_n.jpg?oh=c61708318b3beeb385e0a9ea6709b8f1&oe=57A9179A");
+	*/
 }
 
 div.user-name {
@@ -354,3 +356,8 @@ i.fa-times-circle-o {
 div.user-profile:hover i.fa-times-circle-o {
 	display: block;
 }
+
+i.fa-times-circle-o:hover {
+	color: #E57373;
+}
+

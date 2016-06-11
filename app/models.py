@@ -8,11 +8,17 @@ class Sessions(db.Model):
     lastModified = db.Column(db.DateTime, default=datetime.utcnow)
     creator = db.Column(db.Integer)
 
+    def json_view(self):
+        return {"id": self.id, "title": self.title}
+
 class Unranked(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     session = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String, nullable=False)
     avg_score = db.Column(db.Numeric(3,1), default=None)
+
+    def json_view(self):
+        return {"id": self.id, "session": self.session, "name": self.name, "score": str(self.avg_score)}
 
 class Ranked(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
@@ -26,6 +32,12 @@ class Score(db.Model):
     unranked = db.relationship('Unranked',backref=db.backref('scores',lazy='dynamic'))
     user_id = db.Column(db.Integer, nullable=False)
     score = db.Column(db.Integer, nullable=False)
+
+class Permission(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    granter_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    granted_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    session = db.Column(db.String, nullable=False)
 
 class User(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
@@ -49,6 +61,9 @@ class User(db.Model):
     @property
     def is_anonymous(self):
         return False
+
+    def json_view(self):
+        return {"id": self.id, "profile_pic": self.profile_pic, "name": self.name}
 
     def get_id(self):
         try:

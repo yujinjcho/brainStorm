@@ -23,6 +23,22 @@ var app = app || {};
 			user_id: '',
 			score: '',
 		}
-	})
+	});
+
+	app.Permission = Backbone.Model.extend({
+		defaults : {
+			session: '',
+			granted_id: ''
+		}
+	});
+
+	app.User = Backbone.Model.extend({
+		defaults : {
+			profile_pic: "",
+			name: ""
+		}
+	});
+
+	
 
 })();

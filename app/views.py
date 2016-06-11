@@ -18,9 +18,14 @@ from flask.ext.login import (
 from sqlalchemy import desc
 
 from app import app, db, facebook, lm
-from models import Sessions, Unranked, Ranked, User, Score
-
-#rated_ideas = [{"session":"session 1","name":"yooo","score":8}]
+from models import (
+	Sessions,
+	Unranked, 
+	Ranked, 
+	User, 
+	Score, 
+	Permission
+)
 
 @app.route('/logout')
 def logout():
@@ -29,143 +34,108 @@ def logout():
 
 @app.before_request
 def get_current_user():
-    #Automatic logging in for testing
+    ########################################
+	#FOR TESTING PURPOSES
     user = User.query.filter(User.id == 1).first()
     login_user(user, remember=True)
+    ########################################
     
     g.user = current_user
 
-@app.route('/')
-def index():
-	if g.user.is_authenticated:
-		groups_query = Sessions.query.filter(Sessions.creator == g.user.id)\
-		.order_by(desc(Sessions.lastModified)).all()
-	else:
-		groups_query = Sessions.query.order_by(desc(Sessions.lastModified)).all()
+def get_sessions():
+	sessions_q = Sessions.query.filter(
+		Sessions.creator == g.user.id
+	).order_by(desc(Sessions.lastModified)).all()
 
-	groups = [{
-		"id": group.id, 
-		"title": group.title
-	} for group in groups_query]
-	
-	try:
-		active_session = groups_query[0].id
-	except:
-		active_session = None
+	active_session = sessions_q[0].id
+	group_ids = [int(s.id) for s in sessions_q]
+	groups = [s.json_view() for s in sessions_q]
+	return active_session, group_ids, groups
 
-	group_set = set([int(group.id) for group in groups_query])
+def get_ideas(groups):
 	scores = Score.query.filter(Score.user_id == g.user.id).all()
-	scores_list = [score.unranked_id for score in scores]
-	unrated_query = Unranked.query.filter(Unranked.session.in_(group_set)).all()
+	scored_ideas = [score.unranked_id for score in scores]
+	unrated_q = Unranked.query.filter(Unranked.session.in_(set(groups))).all()
 	
 	unrated_ideas = [
-		{"id": unrated.id, "session": unrated.session, "name": unrated.name}
-		 for unrated in unrated_query
-		 if unrated.id not in scores_list
+		idea.json_view() for idea in unrated_q 
+		if idea.id not in scored_ideas
 	]
 	rated_ideas = [
-		{"id": unrated.id, "session": unrated.session, "name": unrated.name, "score": str(unrated.avg_score)}
-		 for unrated in unrated_query
-		 if unrated.id in scores_list
+		idea.json_view() for idea in unrated_q 
+		if idea.id in scored_ideas
 	]
+
+	return unrated_ideas, rated_ideas
+
+def get_permissions():
+	permissions_query = Permission.query.filter(Permission.granter_id == g.user.id).all()
+	permissions = [
+		{'id': permission.id,
+		 'granted_id': permission.granted_id, 
+		 "session": permission.session}
+		for permission in permissions_query
+	]
+	return permissions
+
+def get_users(permissions):
+	users_access = set([p['granted_id'] for p in permissions])
+	users_query = User.query.filter(User.id.in_(users_access)).all()
+	users = [u.json_view() for u in users_query]
+	return users
+
+@app.route('/')
+def index():
+	active_session, group_ids, groups = get_sessions()
+	unrated_ideas, rated_ideas = get_ideas(group_ids)
+	permissions = get_permissions()
+	users = get_users(permissions)
 	
 	return render_template(
 		'index.html', 
+		user = g.user,
+		active_session = active_session,
 		sessions = groups, 
 		unrated = unrated_ideas,
 		rated = rated_ideas,
-		active_session = active_session,
-		user = g.user
+		permissions = permissions,
+		users = users
 	)
-
-def json_view (self):
-        return {"id": self.id, "title": self.title}
-
-'''
-@app.route('/sessions')
-def get_group():
-	groups_query = Sessions.query.all()	
-	return jsonify(collection=[json_view(i) for i in groups_query])
-'''
 
 @app.route('/sessions', methods=['POST'])
 def group_create():
 	if request.method == 'POST':
-		if current_user.is_authenticated:
-			user = g.user.id
-		else:
-			user = None
-
 		group = request.get_json()
-		new_group = Sessions(title=group['title'], creator=user)
+		new_group = Sessions(title=group['title'], creator=g.user.id)
 		db.session.add(new_group)
-		db.session.flush()
-		group = {"id": new_group.id, "title": new_group.title}
 		db.session.commit()
+		group["id"] = new_group.id
 		return _todo_response(group)
 
 @app.route('/ideas')
-def get_ideas():    
-	if g.user.is_authenticated:
-		groups_query = Sessions.query.filter(Sessions.creator == g.user.id)\
-		.order_by(desc(Sessions.lastModified)).all()
-	else:
-		groups_query = Sessions.query.order_by(desc(Sessions.lastModified)).all()
-
-	groups = [{
-		"id": group.id, 
-		"title": group.title
-	} for group in groups_query]
-	
-	try:
-		active_session = groups_query[0].id
-	except:
-		active_session = None
-
-	group_set = set([int(group.id) for group in groups_query])
-	scores = Score.query.filter(Score.user_id == g.user.id).all()
-	scores_list = [score.unranked_id for score in scores]
-	unrated_query = Unranked.query.filter(Unranked.session.in_(group_set)).all()
-	
-	rated_ideas = [
-		{"id": unrated.id, "session": unrated.session, "name": unrated.name, "score": str(unrated.avg_score)}
-		 for unrated in unrated_query
-		 if unrated.id in scores_list
-	]
+def get_idea_score():    
+	active_session, group_ids, groups = get_sessions()
+	unrated_ideas, rated_ideas = get_ideas(group_ids)
 	return jsonify(rated_ideas)
 
-@app.route('/idea-model')
-def refresh_model():    
-    model_id = request.args.get('id')
-    idea = Unranked.query.filter(Unranked.id==model_id).first()
-    updated_idea = {
-    	"id": idea.id,
-    	"session": idea.session, 
-    	"name": idea.name, 
-    	"score": str(idea.avg_score)
-    }
-    return jsonify(updated_idea)
-
 @app.route('/ideas', methods=['POST'])
-def idea_create():
+def create_idea():
 	idea = request.get_json()
-	if 'score' in idea:
-		new_score = Score(
-			user_id = g.user.id,
-			score = idea['score'],
-			unranked_id = idea['id']
-		)
-		db.session.add(new_score)
-		db.session.commit()
-	else:
-		new_idea = Unranked(
-			session = idea['session'],
-			name = idea['name']
-		)
-		db.session.add(new_idea)
-		db.session.commit()
-		idea['id'] = new_idea.id
+	new_idea = Unranked(
+		session = idea['session'],
+		name = idea['name']
+	)
+	db.session.add(new_idea)
+	db.session.commit()	
+	idea['id'] = new_idea.id
 	return _todo_response(idea)
+
+def update_average(idea_id):
+	idea = Unranked.query.filter_by(id=idea_id).first()
+	scores_q = idea.scores.all()
+	scores = [score.score for score in scores_q]
+	idea.avg_score = sum(scores)/float(len(scores))
+	db.session.commit()
 
 @app.route('/scores', methods=['POST'])
 def create_score():
@@ -179,15 +149,8 @@ def create_score():
 	db.session.commit()
 	score['id'] = new_score.id
 	score['user_id'] = g.user.id
-	updateAverage(score["unranked_id"])
+	update_average(score["unranked_id"])
 	return _todo_response(score)	
-
-def updateAverage(idea_id):
-	idea = Unranked.query.filter_by(id=idea_id).first()
-	scores_query = idea.scores.all()
-	scores = [score.score for score in scores_query]
-	idea.avg_score = sum(scores)/float(len(scores))
-	db.session.commit()
 
 def _todo_response(data):
     return jsonify(**data)
@@ -215,9 +178,7 @@ def facebook_authorized():
         return 'Access denied: %s' % resp.message
 
     session['oauth_token'] = (resp['access_token'], '')
-    me = facebook.get(
-        '/me/?fields=email,name,id,picture.height(200).width(200)'
-    )
+    me = facebook.get('/me/?fields=email,name,id,picture.height(200).width(200)')
     return set_user(me)
 
 @facebook.tokengetter
@@ -260,6 +221,21 @@ def autocomplete_countries():
 	response = { "suggestions": users_list}
 	return jsonify(response)
 
+@app.route('/permissions', methods=['POST'])
+def create_permissions():
+	permission = request.get_json()
+	new_permission = Permission(
+		granter_id = g.user.id,
+		granted_id = permission['granted_id'],
+		session = permission['session']
+	)
+	db.session.add(new_permission)
+	db.session.commit()
+	permission['id'] = new_permission.id
+	return _todo_response(permission)
+
+
+
 #TEST
 @app.route('/query')
 def query_test():    
@@ -290,5 +266,12 @@ def query_test2():
     list_scores = [each_score.score for each_score in scores_query]
     float_avg = sum(list_scores)/float(len(list_scores))
     return "%.1f" % float_avg
+
+
+@app.route('/query3')
+def query_test3():    
+    idea = Unranked.query.with_entities(Unranked.id).all()
+    #return ' '.join(idea)
+    return jsonify(idea)
     
     

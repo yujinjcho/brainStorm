@@ -42,6 +42,17 @@ var app = app || {};
 	  }
 	});	
 
+	app.UserView = Backbone.View.extend({
+		template: _.template($('#user-template').html()),
+		render: function(){
+			this.$el.html(this.template(this.model.toJSON()));
+			return this;
+		},
+		initialize: function(){
+			this.render();
+		}
+	});
+
 
 
 	//----------------------
@@ -150,7 +161,6 @@ var app = app || {};
       var toggleElems = ['user-header', 'autocomplete', 'user-container'];
       var toggleLength = toggleElems.length;
 
-      debugger;
       for (var i = 0; i < viewLength; i++) {
 		document.getElementById(viewElems[i]).classList.add('no-show');      	
       };
@@ -219,6 +229,7 @@ var app = app || {};
 	  },
 	  addOneIf: function(idea){
       if (app.active_session.name == idea.get('session')){
+	    	debugger;
 	    	var view = new app.RatedIdeaView({model: idea});
 	    	$('#rated-list').append(view.render().el);	
 	    };
@@ -228,6 +239,31 @@ var app = app || {};
 	    app.ratedIdeaList.each(this.addOneIf, this);
 	  },
 	});
+
+	app.UserListView = Backbone.View.extend({
+	  el: '#container',
+	  initialize: function(){
+	    app.permissionList.on('add', this.addSome, this);
+	    this.addSome();
+	  },
+	  events: {
+	    'click form.sessions' : 'change_Session'
+	  },
+	  change_Session: function(e){
+        this.addSome();
+      },
+      addOneIf: function(permission){
+      if (app.active_session.name == permission.get('session')){
+	    	var user = app.userList.get(permission.get('granted_id'))
+	    	var view = new app.UserView({model: user});
+	    	$('#user-container').append(view.render().el);	
+	    };
+	  },
+	  addSome: function(){ 
+      this.$('#user-container').html('');
+	    app.permissionList.each(this.addOneIf, this);
+	  },
+	});	
 
 
 })();

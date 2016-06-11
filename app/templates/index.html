@@ -80,17 +80,16 @@
 		</div>
 
 		<div class="no-show" id="user-container">
+			<!--
 			{% for user in range(0,10) %}
 				<div class='user-profile'>
 					<div class='user-pic'>
 						<div class='user-name'>Yujin Cho </div>
 						<i class="fa fa-times-circle-o fa-lg" aria-hidden="true"></i>
-						
 					</div>
-					
 				</div>
 			{% endfor %}
-
+		-->
 			
 		</div>
 	</div>
@@ -118,6 +117,15 @@
 	    	<div class="idea-name"><%- name %></div>
 	    	<div class="avg-score"><%- score %></div>
 	    </div>
+	  </script>
+
+	  <script type="text/template" id="user-template">
+	  	<div class='user-profile'>
+	  		<div class='user-pic' style="background-image: url(<%- profile_pic %>)" name = "<%- id %>">
+	  			<div class='user-name'><%- name %> </div>
+	  			<i class="fa fa-times-circle-o fa-lg" aria-hidden="true"></i>
+	  		</div>
+	  	</div>
 	  </script>
 
 
@@ -149,10 +157,14 @@
 	    app.sessionListView = new app.SessionListView();
 
 	    app.unratedIdeaList.reset( {{ unrated | tojson }} );
-	    app.unratedIdeaListView = new app.UnratedIdeaListView;
+	    app.unratedIdeaListView = new app.UnratedIdeaListView();
 
 	    app.ratedIdeaList.reset( {{ rated | tojson }} );
-	    app.ratedIdeaListView = new app.RatedIdeaListView;
+	    app.ratedIdeaListView = new app.RatedIdeaListView();
+
+	    app.permissionList.reset( {{ permissions | tojson }} );
+		app.userList.reset( {{ users | tojson }} );
+		app.userListView = new app.UserListView();
 
 	  </script>
 
