@@ -1,6 +1,6 @@
 body {
 	min-width: 1005px;
-	overflow: hidden;
+	overflow-x: hidden;
 	font-family: arial;
 	font-size: 14px;
 }
@@ -257,18 +257,17 @@ div#user-header {
 }
 
 div#user-container {
-	height: 270px;
-	width: 675px;
+	height: auto;
+	width: 685px;
 	position: absolute;
-	left: 217px;
+	left: 225px;
 	top: 150px;
-	white-space: nowrap;
-	overflow-y: hidden;
-	overflow-x: scroll;
+	overflow-y: scroll;
+	overflow-x: hidden;
 }
 
 div#user-container::-webkit-scrollbar {
-    height: 8px;
+    width: 8px;
 }
 
 div#user-container::-webkit-scrollbar-thumb {
@@ -277,11 +276,11 @@ div#user-container::-webkit-scrollbar-thumb {
 
 div.user-profile {
 	/*border: 1px solid gray;*/
-	height: 212px;
+	height: 160px;
 	width: 160px;
 	display: inline-block;
 	position: relative;
-	margin: 5px 0px 5px 5px;
+	background-color: rgba(230,230,230,1);
 	
 }
 
@@ -289,25 +288,30 @@ div.user-pic {
 	/*border: 1px solid gray;*/
 	width: 160px;
 	height: 160px;
-	background-color: rgba(40,40,40,1);
-	background-image: url("https://scontent.xx.fbcdn.net/v/t1.0-1/p200x200/1896833_10201724429248014_982080163_n.jpg?oh=c61708318b3beeb385e0a9ea6709b8f1&oe=57A9179A")
+	background-size: 100% 100%;
+	background-image: url("https://scontent.xx.fbcdn.net/v/t1.0-1/p200x200/1896833_10201724429248014_982080163_n.jpg?oh=c61708318b3beeb385e0a9ea6709b8f1&oe=57A9179A");
 }
 
 div.user-name {
 	/*border: 1px solid gray;*/
+	font-family: 'Roboto', sans-serif;
+	font-size: 12px;
+	font-weight: 500;
 	width: 160px;
-	height: 50px;	
-	padding-left: 5px;
-	padding-top: 5px;
-	line-height: 20px;
-	background-color: rgba(230,230,230,1);
-	text-align: center;
+	height: 35px;	
+	padding-left: 15px;
+	padding-top: 8px;
+	bottom: 0px;
+	position: absolute;
+	background-color: rgba(0,0,0,.4);
+	color: rgba(255, 255, 255, .8);
+	text-align: left;
 	white-space: pre-wrap;      /* CSS3 */   
 	white-space: -moz-pre-wrap; /* Firefox */    
 	white-space: -pre-wrap;     /* Opera <7 */   
 	white-space: -o-pre-wrap;   /* Opera 7 */    
 	word-wrap: break-word;  
-	font-weight: Bold;
+	text-transform: uppercase;
 }
 
 .autocomplete-suggestions {
@@ -337,4 +341,16 @@ div.user-name {
 
 .autocomplete-selected {
 	background: rgba(230, 230, 230, 1);
+}
+
+i.fa-times-circle-o {
+	display: none;
+	color: rgba(255, 255, 255, .8);
+	bottom: 10px;
+	right: 10px;
+	position: absolute;
+}
+
+div.user-profile:hover i.fa-times-circle-o {
+	display: block;
 }

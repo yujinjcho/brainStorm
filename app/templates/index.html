@@ -5,6 +5,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<title>BrainStorm</title>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/stylesheet.css') }}">
+	<link href='https://fonts.googleapis.com/css?family=Roboto:400,300,400italic,500,900,700,300italic' rel='stylesheet' type='text/css'>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 	<script src="{{ url_for('static', filename='js/jquery.autocomplete.min.js') }}"></script>
 	
@@ -79,10 +80,14 @@
 		</div>
 
 		<div class="no-show" id="user-container">
-			{% for user in range(0,3) %}
+			{% for user in range(0,10) %}
 				<div class='user-profile'>
-					<div class='user-pic'></div>
-					<div class='user-name'>Yujin Cho</div>
+					<div class='user-pic'>
+						<div class='user-name'>Yujin Cho </div>
+						<i class="fa fa-times-circle-o fa-lg" aria-hidden="true"></i>
+						
+					</div>
+					
 				</div>
 			{% endfor %}
 
@@ -137,23 +142,18 @@
 	  <script src="{{ url_for('static', filename='js/model.js') }}"></script>
 	  <script src="{{ url_for('static', filename='js/collection.js') }}"></script>
 	  <script src="{{ url_for('static', filename='js/views.js') }}"></script>
+	  <script src="{{ url_for('static', filename='js/user-search.js') }}"></script>
+
 	  <script type="text/javascript">
 	    app.sessionList.reset({{ sessions | tojson }});
 	    app.sessionListView = new app.SessionListView();
 
 	    app.unratedIdeaList.reset( {{ unrated | tojson }} );
 	    app.unratedIdeaListView = new app.UnratedIdeaListView;
-	    //app.unratedIdeaListView.addSome();
 
 	    app.ratedIdeaList.reset( {{ rated | tojson }} );
 	    app.ratedIdeaListView = new app.RatedIdeaListView;
 
-	    $('#autocomplete').autocomplete({
-	        serviceUrl: '/autocomplete/countries',
-	        onSelect: function (suggestion) {
-	            alert('You selected: ' + suggestion.value + ' ' + suggestion.id.toString());
-	        }
-	    });	
 	  </script>
 
 </body>
