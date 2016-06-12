@@ -102,7 +102,7 @@ def index():
 		active_user = g.user
 		active_session, group_ids, groups = get_sessions()
 		unrated_ideas, rated_ideas = get_ideas(group_ids)
-		permissions = get_permissions(active_user)
+		permissions = get_permissions()
 		users = get_users(permissions)
 	
 	return render_template(
