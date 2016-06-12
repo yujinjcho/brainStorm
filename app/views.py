@@ -56,10 +56,7 @@ def get_sessions():
 	group_ids = [int(s.id) for s in sessions_q]
 	return active_session, group_ids, groups
 
-def get_ideas(groups, active_user):
-	if active_user is None:
-		return [], []
-
+def get_ideas(groups):
 	scores = Score.query.filter(Score.user_id == g.user.id).all()
 	scored_ideas = [score.unranked_id for score in scores]
 	unrated_q = Unranked.query.filter(Unranked.session.in_(set(groups))).all()

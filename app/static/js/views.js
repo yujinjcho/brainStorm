@@ -241,7 +241,6 @@ var app = app || {};
 	  },
 	  addOneIf: function(idea){
       if (app.active_session.name == idea.get('session')){
-	    	debugger;
 	    	var view = new app.RatedIdeaView({model: idea});
 	    	$('#rated-list').append(view.render().el);	
 	    };
