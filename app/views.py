@@ -36,8 +36,8 @@ def logout():
 def get_current_user():
     ########################################
 	#FOR TESTING PURPOSES
-    #user = User.query.filter(User.id == 1).first()
-    #login_user(user, remember=True)
+    user = User.query.filter(User.id == 2).first()
+    login_user(user, remember=True)
     ########################################
     
     g.user = current_user
