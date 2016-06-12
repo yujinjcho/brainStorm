@@ -98,13 +98,18 @@ def get_users(permissions):
 def index():
 	if not g.user.is_authenticated:
 		active_user = None
+		active_session = None
+		groups = []
+		unrated_ideas = []
+		rated_ideas = []
+		permissions = []
+		users = []
 	else:
 		active_user = g.user
-
-	active_session, group_ids, groups = get_sessions(active_user)
-	unrated_ideas, rated_ideas = get_ideas(group_ids, active_user)
-	permissions = get_permissions(active_user)
-	users = get_users(permissions)
+		active_session, group_ids, groups = get_sessions(active_user)
+		unrated_ideas, rated_ideas = get_ideas(group_ids, active_user)
+		permissions = get_permissions(active_user)
+		users = get_users(permissions)
 	
 	return render_template(
 		'index.html', 
