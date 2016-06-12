@@ -119,7 +119,7 @@ var app = app || {};
       app.unratedIdeaList.on('remove', this.addSome, this);
 	    app.unratedIdeaList.on('reset', this.addSome, this);
 	    this.addSome();
-	    this.manageSessions();
+	    //this.manageSessions();
 	  },
 	  events: {
 	    'keypress input#new-idea' : 'add_Idea',
