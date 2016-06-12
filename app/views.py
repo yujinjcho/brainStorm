@@ -42,9 +42,9 @@ def get_current_user():
     
     g.user = current_user
 
-def get_sessions(active_user):
+def get_sessions():
 	sessions_q = Sessions.query.filter(
-		Sessions.creator == active_user
+		Sessions.creator == g.user.id
 	).order_by(Sessions.lastModified).all()
 
 	if not sessions_q:
@@ -106,7 +106,7 @@ def index():
 		users = []
 	else:
 		active_user = g.user
-		active_session, group_ids, groups = get_sessions(active_user)
+		active_session, group_ids, groups = get_sessions()
 		unrated_ideas, rated_ideas = get_ideas(group_ids, active_user)
 		permissions = get_permissions(active_user)
 		users = get_users(permissions)
