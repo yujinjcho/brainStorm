@@ -72,10 +72,7 @@ def get_ideas(groups):
 
 	return unrated_ideas, rated_ideas
 
-def get_permissions(active_user):
-	if active_user is None:
-		return []
-
+def get_permissions():
 	permissions_query = Permission.query.filter(Permission.granter_id == g.user.id).all()
 	permissions = [
 		{'id': permission.id,
@@ -104,7 +101,7 @@ def index():
 	else:
 		active_user = g.user
 		active_session, group_ids, groups = get_sessions()
-		unrated_ideas, rated_ideas = get_ideas(group_ids, active_user)
+		unrated_ideas, rated_ideas = get_ideas(group_ids)
 		permissions = get_permissions(active_user)
 		users = get_users(permissions)
 	
