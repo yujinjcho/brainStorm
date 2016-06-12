@@ -269,6 +269,7 @@ def create_permissions():
 	return _todo_response(permission)
 
 #TEST
+'''
 @app.route('/query')
 def query_test():    
     score = Score(unranked_id=30, user_id=2, score=0)
@@ -304,5 +305,5 @@ def query_test2():
 def query_test3():    
     idea = Unranked.query.with_entities(Unranked.id).all()
     return jsonify(idea)
-    
+ ''' 
     
