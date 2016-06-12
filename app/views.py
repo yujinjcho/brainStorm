@@ -36,15 +36,15 @@ def logout():
 def get_current_user():
     ########################################
 	#FOR TESTING PURPOSES
-    user = User.query.filter(User.id == 2).first()
+    user = User.query.filter(User.id == 1).first()
     login_user(user, remember=True)
     ########################################
     
     g.user = current_user
 
-def get_sessions():
+def get_sessions(active_user):
 	sessions_q = Sessions.query.filter(
-		Sessions.creator == g.user.id
+		Sessions.creator == active_user
 	).order_by(Sessions.lastModified).all()
 
 	if not sessions_q:
@@ -56,7 +56,10 @@ def get_sessions():
 	group_ids = [int(s.id) for s in sessions_q]
 	return active_session, group_ids, groups
 
-def get_ideas(groups):
+def get_ideas(groups, active_user):
+	if active_user is None:
+		return [], []
+
 	scores = Score.query.filter(Score.user_id == g.user.id).all()
 	scored_ideas = [score.unranked_id for score in scores]
 	unrated_q = Unranked.query.filter(Unranked.session.in_(set(groups))).all()
@@ -72,7 +75,10 @@ def get_ideas(groups):
 
 	return unrated_ideas, rated_ideas
 
-def get_permissions():
+def get_permissions(active_user):
+	if active_user is None:
+		return []
+
 	permissions_query = Permission.query.filter(Permission.granter_id == g.user.id).all()
 	permissions = [
 		{'id': permission.id,
@@ -90,14 +96,19 @@ def get_users(permissions):
 
 @app.route('/')
 def index():
-	active_session, group_ids, groups = get_sessions()
-	unrated_ideas, rated_ideas = get_ideas(group_ids)
-	permissions = get_permissions()
+	if not g.user.is_authenticated:
+		active_user = None
+	else:
+		active_user = g.user
+
+	active_session, group_ids, groups = get_sessions(active_user)
+	unrated_ideas, rated_ideas = get_ideas(group_ids, active_user)
+	permissions = get_permissions(active_user)
 	users = get_users(permissions)
 	
 	return render_template(
 		'index.html', 
-		user = g.user,
+		user = active_user,
 		active_session = active_session,
 		sessions = groups, 
 		unrated = unrated_ideas,
