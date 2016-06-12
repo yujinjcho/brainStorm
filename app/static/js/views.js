@@ -73,7 +73,12 @@ var app = app || {};
 	    if (e.which !==13 || !this.input.val().trim()){
 	    	return;
 	    };
-	    app.sessionList.create(this.newSession(), {wait:true});
+	    var newModel = app.sessionList.create(this.newSession(), {wait:true, success: function(model){
+	    	document.getElementById('new-idea').setAttribute('name', model.get('id'));
+	    	app.unratedIdeaListView.addSome();
+	    	app.ratedIdeaListView.addSome();
+	    	app.sessionListView.sessionHighlight();
+	  	}});
 	    this.input.val('');
 	  },
 	  addSessionCallback: function() {
@@ -111,7 +116,7 @@ var app = app || {};
 	    this.input = this.$('#new-idea');
 	    app.active_session = document.getElementById('new-idea');
 	    app.unratedIdeaList.on('add', this.addSome, this);
-      	app.unratedIdeaList.on('remove', this.addSome, this);
+      app.unratedIdeaList.on('remove', this.addSome, this);
 	    app.unratedIdeaList.on('reset', this.addSome, this);
 	    this.addSome();
 	    this.manageSessions();
@@ -126,6 +131,13 @@ var app = app || {};
 	    if (e.which !== 13 || !this.input.val().trim()){
 	    	return;
 	    };
+
+	    if (app.active_session.name == "None"){
+	    	alert('Please create a session first')
+				this.input.val('');
+	    	return;
+	    };
+
 	    app.unratedIdeaList.create(this.newIdea(), {wait:true});
 	    this.input.val('');
 	  },
@@ -243,16 +255,17 @@ var app = app || {};
 	app.UserListView = Backbone.View.extend({
 	  el: '#container',
 	  initialize: function(){
-	    app.permissionList.on('add', this.addSome, this);
+	    //app.permissionList.on('add', this.addSome, this);
+	    app.userList.on('reset', this.addSome, this);
 	    this.addSome();
 	  },
 	  events: {
 	    'click form.sessions' : 'change_Session'
 	  },
 	  change_Session: function(e){
-        this.addSome();
-      },
-      addOneIf: function(permission){
+       this.addSome();
+    },
+    addOneIf: function(permission){
       if (app.active_session.name == permission.get('session')){
 	    	var user = app.userList.get(permission.get('granted_id'))
 	    	var view = new app.UserView({model: user});

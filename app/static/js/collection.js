@@ -32,6 +32,10 @@ var app = app || {};
 	})
 
 	app.sessionList = new SessionList();
+	app.sessionList.comparator = function(att){
+		return -Date.parse(att.get('lastModified'));
+	};
+
 	app.unratedIdeaList = new IdeaList();
 	app.ratedIdeaList = new IdeaList();
 	app.ratedIdeaList.comparator = function(att){

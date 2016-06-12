@@ -36,7 +36,7 @@ def logout():
 def get_current_user():
     ########################################
 	#FOR TESTING PURPOSES
-    user = User.query.filter(User.id == 1).first()
+    user = User.query.filter(User.id == 2).first()
     login_user(user, remember=True)
     ########################################
     
@@ -45,11 +45,15 @@ def get_current_user():
 def get_sessions():
 	sessions_q = Sessions.query.filter(
 		Sessions.creator == g.user.id
-	).order_by(desc(Sessions.lastModified)).all()
+	).order_by(Sessions.lastModified).all()
 
-	active_session = sessions_q[0].id
-	group_ids = [int(s.id) for s in sessions_q]
+	if not sessions_q:
+		active_session = None
+	else:
+		active_session = sessions_q[-1].id
+
 	groups = [s.json_view() for s in sessions_q]
+	group_ids = [int(s.id) for s in sessions_q]
 	return active_session, group_ids, groups
 
 def get_ideas(groups):
@@ -102,14 +106,21 @@ def index():
 		users = users
 	)
 
+@app.route('/users')
+def update_users():
+	permissions = get_permissions()
+	users = get_users(permissions)
+	return jsonify(users)
+
 @app.route('/sessions', methods=['POST'])
-def group_create():
+def create_session():
 	if request.method == 'POST':
 		group = request.get_json()
 		new_group = Sessions(title=group['title'], creator=g.user.id)
 		db.session.add(new_group)
 		db.session.commit()
 		group["id"] = new_group.id
+		group["lastModified"] = new_group.lastModified
 		return _todo_response(group)
 
 @app.route('/ideas')
@@ -224,17 +235,27 @@ def autocomplete_countries():
 @app.route('/permissions', methods=['POST'])
 def create_permissions():
 	permission = request.get_json()
-	new_permission = Permission(
-		granter_id = g.user.id,
-		granted_id = permission['granted_id'],
-		session = permission['session']
-	)
-	db.session.add(new_permission)
-	db.session.commit()
-	permission['id'] = new_permission.id
+	permission_q = Permission.query.filter(
+		Permission.granter_id == g.user.id
+	).filter(
+		Permission.granted_id == permission['granted_id']
+	).filter(
+		Permission.session == permission['session']
+	).first()
+
+	if permission_q:
+		permission['id'] = permission_q.id
+		return _todo_response(permission)
+	else:
+		new_permission = Permission(
+			granter_id = g.user.id,
+			granted_id = permission['granted_id'],
+			session = permission['session']
+		)
+		db.session.add(new_permission)
+		db.session.commit()
+		permission['id'] = new_permission.id
 	return _todo_response(permission)
-
-
 
 #TEST
 @app.route('/query')
@@ -248,9 +269,9 @@ def query_test():
 @app.route('/create_user')
 def create_user():    
     new_user = User(
-        auth_server_id=2,
-        name='user2',
-        email='email2',
+        auth_server_id=8,
+        name='user8',
+        email='email8',
         profile_pic='profilepic'
     )  
 
@@ -271,7 +292,6 @@ def query_test2():
 @app.route('/query3')
 def query_test3():    
     idea = Unranked.query.with_entities(Unranked.id).all()
-    #return ' '.join(idea)
     return jsonify(idea)
     
     

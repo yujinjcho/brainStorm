@@ -33,7 +33,7 @@
 
 			<div id="account">	
 				<div class="dropdown">
-				  <button class="btn dropdown-toggle account" type="button" data-toggle="dropdown" style="background-color: white">
+				  <button class="btn dropdown-toggle account" type="button" data-toggle="dropdown" >
 				  	{% if g.user.is_authenticated %}
 				  		{{ user.name }}
 				  	{% else %}
@@ -63,7 +63,7 @@
 
 			<div class="idea-header rated-header" id="header2">
 				<div class="title name">Rated</div>
-				<div class="title">Avg. Score</div>
+				<div class="title">Average</div>
 			</div>
 
 			<!--Header for user management -->
@@ -80,16 +80,6 @@
 		</div>
 
 		<div class="no-show" id="user-container">
-			<!--
-			{% for user in range(0,10) %}
-				<div class='user-profile'>
-					<div class='user-pic'>
-						<div class='user-name'>Yujin Cho </div>
-						<i class="fa fa-times-circle-o fa-lg" aria-hidden="true"></i>
-					</div>
-				</div>
-			{% endfor %}
-		-->
 			
 		</div>
 	</div>

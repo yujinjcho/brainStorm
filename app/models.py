@@ -9,7 +9,7 @@ class Sessions(db.Model):
     creator = db.Column(db.Integer)
 
     def json_view(self):
-        return {"id": self.id, "title": self.title}
+        return {"id": self.id, "title": self.title, "lastModified": self.lastModified}
 
 class Unranked(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
