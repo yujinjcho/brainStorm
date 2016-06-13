@@ -218,7 +218,7 @@ def create_score():
 	db.session.commit()
 	score['id'] = new_score.id
 	score['user_id'] = g.user.id
-	score['score'] = update_average(score["unranked_id"])
+	update_average(score["unranked_id"])
 	return _todo_response(score)	
 
 def _todo_response(data):
