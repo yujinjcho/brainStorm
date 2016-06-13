@@ -1,4 +1,6 @@
 var app = app || {};
+var manageSessions = document.getElementById('manage-sessions').addEventListener('click', app.unratedIdeaListView.manageSessions);
+var showSessions = document.getElementById('show-sessions').addEventListener('click', app.unratedIdeaListView.showSessions);
 
 $('#autocomplete').autocomplete({
     serviceUrl: '/autocomplete/countries',
@@ -7,10 +9,10 @@ $('#autocomplete').autocomplete({
         var active_session = document.getElementById('new-idea').name;
         $.when(
 	  	    app.permissionList.create({"granted_id":suggestion.id, 'session':active_session},{wait:true})
-	  	  ).then(function(){
-          app.userList.fetch({wait:true, reset: true})
-	  	  }).then(function(){
-          document.getElementById('autocomplete').value='';
+	  	).then(function(){
+            app.userList.fetch({wait:true, reset: true})
+	  	}).then(function(){
+            document.getElementById('autocomplete').value='';
         })
 
 	  	//app.ratedIdeaList.fetch({wait:true, reset:true});
@@ -21,4 +23,6 @@ $('#autocomplete').autocomplete({
         //);
     }
 });	
+
+
 

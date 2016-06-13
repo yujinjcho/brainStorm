@@ -9,7 +9,7 @@ class Sessions(db.Model):
     creator = db.Column(db.Integer)
 
     def json_view(self):
-        return {"id": self.id, "title": self.title, "lastModified": self.lastModified}
+        return {"id": self.id, "title": self.title, "lastModified": self.lastModified, "creator": self.creator}
 
 class Unranked(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
@@ -19,12 +19,6 @@ class Unranked(db.Model):
 
     def json_view(self):
         return {"id": self.id, "session": self.session, "name": self.name, "score": str(self.avg_score)}
-
-class Ranked(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    session = db.Column(db.String, nullable=False)
-    name = db.Column(db.String, nullable=False)
-    score = db.Column(db.Integer, nullable=False)
 
 class Score(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
@@ -37,7 +31,7 @@ class Permission(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     granter_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     granted_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    session = db.Column(db.String, nullable=False)
+    session = db.Column(db.Integer, nullable=False)
 
 class User(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)

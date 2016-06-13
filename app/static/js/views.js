@@ -77,6 +77,7 @@ var app = app || {};
 	    	document.getElementById('new-idea').setAttribute('name', model.get('id'));
 	    	app.unratedIdeaListView.addSome();
 	    	app.ratedIdeaListView.addSome();
+	    	app.userListView.addSome();
 	    	app.sessionListView.sessionHighlight();
 	  	}});
 	    this.input.val('');
@@ -116,7 +117,7 @@ var app = app || {};
 	    this.input = this.$('#new-idea');
 	    app.active_session = document.getElementById('new-idea');
 	    app.unratedIdeaList.on('add', this.addSome, this);
-      app.unratedIdeaList.on('remove', this.addSome, this);
+      	app.unratedIdeaList.on('remove', this.addSome, this);
 	    app.unratedIdeaList.on('reset', this.addSome, this);
 	    this.addSome();
 	    //this.manageSessions();
@@ -124,8 +125,8 @@ var app = app || {};
 	  events: {
 	    'keypress input#new-idea' : 'add_Idea',
 	    'click form.sessions' : 'change_Session',
-      'click a#manage-sessions' : 'manageSessions',
-      'click a#show-sessions' : 'showSessions'
+    	'click a#manage-sessions' : 'manageSessions',
+    	'click a#show-sessions' : 'showSessions'
 	  },
 	  add_Idea: function(e){
 	    if (e.which !== 13 || !this.input.val().trim()){
@@ -167,33 +168,33 @@ var app = app || {};
 	  	app.ratedIdeaListView.addSome();
 	  },
     manageSessions: function(){
-      var viewElems = ['new-idea', 'unrated-list', 'rated-list', 'header1', 'header2'];
+      var viewElems = ['unrated-container', 'rated-container'];
       var viewLength = viewElems.length;
       
-      var toggleElems = ['user-header', 'autocomplete', 'user-container'];
+      var toggleElems = ['group-container'];
       var toggleLength = toggleElems.length;
 
       for (var i = 0; i < viewLength; i++) {
-		document.getElementById(viewElems[i]).classList.add('no-show');      	
+				document.getElementById(viewElems[i]).classList.add('no-show');      	
       };
 
       for (var i = 0; i < toggleLength; i++) {
-		document.getElementById(toggleElems[i]).classList.remove('no-show');      	
+				document.getElementById(toggleElems[i]).classList.remove('no-show');      	
       };
     },
     showSessions: function(){
-      var viewElems = ['new-idea', 'unrated-list', 'rated-list', 'header1', 'header2'];
+      var viewElems = ['unrated-container', 'rated-container'];
       var viewLength = viewElems.length;
       
-      var toggleElems = ['user-header', 'autocomplete', 'user-container'];
+      var toggleElems = ['group-container'];
       var toggleLength = toggleElems.length;
 
       for (var i = 0; i < viewLength; i++) {
-		document.getElementById(viewElems[i]).classList.remove('no-show');      	
+				document.getElementById(viewElems[i]).classList.remove('no-show');      	
       };
 
       for (var i = 0; i < toggleLength; i++) {
-		document.getElementById(toggleElems[i]).classList.add('no-show');      	
+				document.getElementById(toggleElems[i]).classList.add('no-show');      	
       };
 
     }
@@ -254,27 +255,36 @@ var app = app || {};
 	app.UserListView = Backbone.View.extend({
 	  el: '#container',
 	  initialize: function(){
-	    //app.permissionList.on('add', this.addSome, this);
+	    app.permissionList.on('add', this.addSome, this);
+	    //app.permissionList.on('add', this.update_user, this);
 	    app.userList.on('reset', this.addSome, this);
-	    this.addSome();
 	  },
-	  events: {
-	    'click form.sessions' : 'change_Session'
+	  events : {
+	  	'click form.sessions' : 'addSome'
 	  },
-	  change_Session: function(e){
-       this.addSome();
-    },
     addOneIf: function(permission){
       if (app.active_session.name == permission.get('session')){
 	    	var user = app.userList.get(permission.get('granted_id'))
-	    	var view = new app.UserView({model: user});
-	    	$('#user-container').append(view.render().el);	
+		    	if (app.active_user !== user.id){
+			    	var view = new app.UserView({model: user});
+			    	$('#user-container').append(view.render().el);	
+		    	}
 	    };
+	  },
+	  addCreator: function(){
+	  	var creator = app.sessionList.get(app.active_session.name).get('creator')
+	  	var user = app.userList.get(creator)
+	  	var view = new app.UserView({model: user});
+	  	$('#user-container').append(view.render().el);
 	  },
 	  addSome: function(){ 
       this.$('#user-container').html('');
+	    this.addCreator();
 	    app.permissionList.each(this.addOneIf, this);
 	  },
+	  update_user: function(){
+	  	this.fetch({wait:true, reset: true})
+	  }
 	});	
 
 

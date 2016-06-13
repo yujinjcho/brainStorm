@@ -11,76 +11,101 @@
 	
 </head>
 <body>
+
+	
+
+	<nav class="navbar navbar-default">
+	  <div class="container-fluid">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	    </div>
+
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+	      <ul class="nav navbar-nav">
+	        
+	        <li><a href="#"><i class="fa fa-cloud" aria-hidden="true"></i> Idea Storm</a></li>
+	      </ul>      
+	      
+	      <ul class="nav navbar-nav navbar-right">
+	        <li class="dropdown">
+	          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+	          	{% if g.user.is_authenticated %}
+			  		{{ user.name }}
+			  	{% endif %}
+			  	<span class="caret"></span></button>
+	          </a>
+	          <ul class="dropdown-menu">
+	            
+	            {% if g.user.is_authenticated and g.user.id != 4 %}
+			  		<li><a href="#" id="show-sessions">Show Sessions</a></li>
+			  		<li><a href="#" id="manage-sessions">Manage Sessions</a></li>
+			  		<li role="separator" class="divider"></li>
+			  		<li><a href="{{ url_for('logout') }}">Logout</a></li>
+			  	{% else %}
+			  		<li><a href="{{ url_for('login') }}">Login via Facebook</a></li>
+			  	{% endif %}
+	          </ul>
+	        </li>
+	      </ul>
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
 	
 	<div id='container'>
 
 		<!-- SESSIONS LEFT NAVBAR  -->
 		<div id="left-bar">
+			
+			<!--
 			<div id="logo">			
 				<i class="fa fa-cloud fa-2x" aria-hidden="true"></i>
 				<div id="company">BrainStorm</div>
 				<div></div>
 			</div>
+			-->
 
-			<input type="text" id="session-name" placeholder="New Session" maxlength="15">
+			<input type="text" id="session-name" placeholder="Add New Session" maxlength="15">
 			
 			<div id='brainstorm-list'></div>
 		</div>
 
-		<div id="navbar">
-			<input type="text" id="new-idea" placeholder="New Idea" maxlength="25" name = "{{ active_session }}"/>
-			<input class="no-show" type="text" name="country" id="autocomplete" placeholder="Search Users"/>
-
-			<div id="account">	
-				<div class="dropdown">
-				  <button class="btn dropdown-toggle account" type="button" data-toggle="dropdown" >
-				  	{% if g.user.is_authenticated %}
-				  		{{ user.name }}
-				  	{% else %}
-				  		Account
-				  	{% endif %}
-				  <span class="caret"></span></button>
-				  <ul class="dropdown-menu" style="text-align: center">
-				    {% if g.user.is_authenticated %}
-				  		<li><a href="#" id="show-sessions">Show Sessions</a></li>
-				  		<li><a href="#" id="manage-sessions">Manage Sessions</a></li>
-				  		<li role="separator" class="divider"></li>
-				  		<li><a href="{{ url_for('logout') }}">Logout</a></li>
-				  	{% else %}
-				  		<li><a href="{{ url_for('login') }}">Login via Facebook</a></li>
-				  	{% endif %}
 
 
-				  </ul>
-				</div>
-			</div>
-
-			<!--Header for ideas -->
+		<!--contains unrated ideas-->
+		<div id="unrated-container">
 			<div class="idea-header" id="header1">
 				<div class="title name">Rate</div>
 				<div class="title">Score</div>
 			</div>
+			<input type="text" id="new-idea" placeholder="Add New Idea Here" maxlength="25" name = "{{ active_session }}" autofocus/>
+			<div class="idea-container" id="unrated-list">
+			</div>
+		</div>
 
+		<div id="rated-container">
 			<div class="idea-header rated-header" id="header2">
 				<div class="title name">Rated</div>
 				<div class="title">Average</div>
 			</div>
-
-			<!--Header for user management -->
-			<div class="idea-header no-show" id="user-header">
-				<div class="title name">Group</div>
+			<div class="idea-container rated" id="rated-list">
 			</div>
 		</div>
-
-		<!--contains unrated ideas-->
-		<div class="idea-container" id="unrated-list">
-		</div>
-
-		<div class="idea-container rated" id="rated-list">
-		</div>
-
-		<div class="no-show" id="user-container">
-			
+		
+		<div id="group-container" class="no-show">
+			<input class="" type="text" name="country" id="autocomplete" placeholder="Search for a user"/>
+			<div class="idea-header" id="user-header">
+				<div class="title name">Group</div>
+			</div>
+			<div class="no-show" id="user-container">			
+			</div>
 		</div>
 	</div>
 
@@ -140,9 +165,11 @@
 	  <script src="{{ url_for('static', filename='js/model.js') }}"></script>
 	  <script src="{{ url_for('static', filename='js/collection.js') }}"></script>
 	  <script src="{{ url_for('static', filename='js/views.js') }}"></script>
-	  <script src="{{ url_for('static', filename='js/user-search.js') }}"></script>
+	  
 
 	  <script type="text/javascript">
+	    app.active_user = {{ user.id }}
+
 	    app.sessionList.reset({{ sessions | tojson }});
 	    app.sessionListView = new app.SessionListView();
 
@@ -152,11 +179,13 @@
 	    app.ratedIdeaList.reset( {{ rated | tojson }} );
 	    app.ratedIdeaListView = new app.RatedIdeaListView();
 
+			app.userListView = new app.UserListView();
 	    app.permissionList.reset( {{ permissions | tojson }} );
-		app.userList.reset( {{ users | tojson }} );
-		app.userListView = new app.UserListView();
+			app.userList.reset( {{ users | tojson }}, {wait:true} );
+			
 
 	  </script>
+	  <script src="{{ url_for('static', filename='js/user-search.js') }}"></script>
 
 </body>
 </html>
