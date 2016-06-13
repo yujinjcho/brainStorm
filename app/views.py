@@ -204,6 +204,7 @@ def update_average(idea_id):
 	scores = [score.score for score in scores_q]
 	idea.avg_score = sum(scores)/float(len(scores))
 	db.session.commit()
+	return idea.avg_score
 
 @app.route('/scores', methods=['POST'])
 def create_score():
@@ -211,13 +212,13 @@ def create_score():
 	new_score = Score(
 		unranked_id = score["unranked_id"],
 		user_id = g.user.id,
-		score = score["score"]
+		score = int(score["score"])
 	)
 	db.session.add(new_score)
 	db.session.commit()
 	score['id'] = new_score.id
 	score['user_id'] = g.user.id
-	update_average(score["unranked_id"])
+	score['score'] = update_average(score["unranked_id"])
 	return _todo_response(score)	
 
 def _todo_response(data):
