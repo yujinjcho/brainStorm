@@ -107,7 +107,12 @@ def get_permissions(group_ids):
 def get_users(permissions):
 	users_access = set([p['granted_id'] for p in permissions])
 	users_query = User.query.filter(User.id.in_(users_access)).all()
-	users = [u.json_view() for u in users_query]
+
+	sessions_q = Sessions.query.all();
+	user_creators_set = [s.id for s in sessions_q]
+	user_creators = User.query.filter(User.id in user_creators_set).all()
+
+	users = [u.json_view() for u in users_query + user_creators]
 	return users
 
 def clear_guest_data():
