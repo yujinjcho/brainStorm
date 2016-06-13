@@ -119,9 +119,11 @@ def clear_guest_data():
 	sessions_q = Sessions.query.filter(Sessions.creator == g.user.id).all()
 	session_set = [int(s.id) for s in sessions_q]
 	
+	
 	scores = Score.query.filter(Score.user_id == g.user.id).delete(synchronize_session=False)
 	unrated_q = Unranked.query.filter(Unranked.session.in_(set(session_set))).delete(synchronize_session=False)
 	sessions_q = Sessions.query.filter(Sessions.creator == g.user.id).delete(synchronize_session=False)
+	permissions_q = Permission.query.filter(Permission.granted_id == g.user.id).delete(synchronize_session=False)
 	db.session.commit()
 
 @app.route('/')
