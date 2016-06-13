@@ -50,6 +50,8 @@
 			  		<li role="separator" class="divider"></li>
 			  		<li><a href="{{ url_for('logout') }}">Logout</a></li>
 			  	{% else %}
+			  		<li><a href="#" id="show-sessions" style="display: none">Show Sessions</a></li>
+			  		<li><a href="#" id="manage-sessions" style="display: none">Manage Sessions</a></li>
 			  		<li><a href="{{ url_for('login') }}">Login via Facebook</a></li>
 			  	{% endif %}
 	          </ul>
