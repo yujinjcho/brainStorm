@@ -230,15 +230,15 @@ var app = app || {};
 				e.target.value < 0){
 	    	return;
 	    };
-		var idea = e.target.id.slice(1);
+			var idea = e.target.id.slice(1);
 	  	var score = e.target.value;
-	  	$.when(
-	  	  app.scoreList.create(this.ratedIdea(idea, score))
-	  	).then(function(){
-        app.ratedIdeaList.fetch({wait:true, reset:true});
-	  	}).then(function(){
-        app.unratedIdeaList.remove(app.unratedIdeaList.get(parseInt(idea)));
-      })
+	  	
+  	  app.scoreList.create(this.ratedIdea(idea, score), {success: function(){
+  	  	app.ratedIdeaList.fetch({wait:true, reset:true, success:function(){
+  	  		app.unratedIdeaList.remove(app.unratedIdeaList.get(parseInt(idea)));
+  	  	}});
+  	  }})
+	  	
 	  },
 	  addOneIf: function(idea){
       if (app.active_session.name == idea.get('session')){
