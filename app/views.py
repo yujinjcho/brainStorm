@@ -126,12 +126,18 @@ def clear_guest_data():
 	permissions_q = Permission.query.filter(Permission.granted_id == g.user.id).delete(synchronize_session=False)
 	db.session.commit()
 
+def create_default_session(title, id):
+	new_group = Sessions(title=title, creator=id)
+	db.session.add(new_group)
+	db.session.commit()
+
 @app.route('/')
 def index():
 	if not g.user.is_authenticated:
 		user = User.query.filter(User.id == 4).first()
 		login_user(user, remember=True)
 		clear_guest_data()
+		create_default_session('Session 1', g.user.id)
 		return redirect(url_for('index'))
 	
 	active_user = g.user
