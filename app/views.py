@@ -109,7 +109,7 @@ def get_users(permissions):
 	users_query = User.query.filter(User.id.in_(users_access)).all()
 
 	sessions_q = Sessions.query.all();
-	user_creators_set = [s.id for s in sessions_q]
+	user_creators_set = [s.creator for s in sessions_q]
 	user_creators = User.query.filter(User.id in user_creators_set).all()
 
 	users = [u.json_view() for u in users_query + user_creators]
