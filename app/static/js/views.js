@@ -125,6 +125,7 @@ var app = app || {};
 	  events: {
 	    'keypress input#new-idea' : 'add_Idea',
 	    'click form.sessions' : 'change_Session',
+	    'click form.sessions i' : 'stopProp',
     	'click a#manage-sessions' : 'manageSessions',
     	'click a#show-sessions' : 'showSessions'
 	  },
@@ -141,6 +142,9 @@ var app = app || {};
 
 	    app.unratedIdeaList.create(this.newIdea(), {wait:true});
 	    this.input.val('');
+	  },
+	  stopProp: function(e) {
+	  	e.stopPropagation();
 	  },
 	  add_ideaCallback: function() {
 	  	this.addSome;
