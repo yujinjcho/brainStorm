@@ -105,14 +105,16 @@ def get_permissions(group_ids):
 	return permissions_granted + permissions_granter
 
 def get_users(permissions):
-	users_access = set([p['granted_id'] for p in permissions])
-	users_query = User.query.filter(User.id.in_(users_access)).all()
+	#users_access = set([p['granted_id'] for p in permissions])
+	#users_query = User.query.filter(User.id.in_(users_access)).all()
 
-	sessions_q = Sessions.query.all();
-	user_creators_set = set([s.creator for s in sessions_q])
-	user_creators = User.query.filter(User.id.in_(user_creators_set)).all()
+	#sessions_q = Sessions.query.all();
+	#user_creators_set = set([s.creator for s in sessions_q])
+	#user_creators = User.query.filter(User.id.in_(user_creators_set)).all()
+	user_creators = User.query.all()
 
-	users = [u.json_view() for u in users_query + user_creators]
+	#users = [u.json_view() for u in users_query + user_creators]
+	users = [u.json_view() for u in user_creators]
 	return users
 
 def clear_guest_data():
@@ -146,8 +148,6 @@ def index():
 	permissions = get_permissions(group_ids)
 
 	#return str(set([p['granted_id'] for p in permissions]))
-	
-
 	users = get_users(permissions)
 	
 	return render_template(
