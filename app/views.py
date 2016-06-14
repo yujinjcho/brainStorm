@@ -297,13 +297,13 @@ def create_permissions():
 	if permission_q:
 		permission['id'] = permission_q.id
 		return _todo_response(permission)
-	else:
-		new_permission = Permission(
-			granter_id = g.user.id,
-			granted_id = permission['granted_id'],
-			session = permission['session']
-		)
-		db.session.add(new_permission)
-		db.session.commit()
-		permission['id'] = new_permission.id
+	
+	new_permission = Permission(
+		granter_id = g.user.id,
+		granted_id = permission['granted_id'],
+		session = permission['session']
+	)
+	db.session.add(new_permission)
+	db.session.commit()
+	permission['id'] = new_permission.id
 	return _todo_response(permission)
