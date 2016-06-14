@@ -97,7 +97,7 @@ def get_permissions(group_ids):
 		for permission in all_permissions
 	]
 	#return permissions_granted
-	return all_permissions
+	return permissions_granted
 
 def get_users(permissions):
 	#users_access = set([p['granted_id'] for p in permissions])
