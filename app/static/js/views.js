@@ -262,6 +262,7 @@ var app = app || {};
 	    app.permissionList.on('add', this.addSome, this);
 	    //app.permissionList.on('add', this.update_user, this);
 	    app.userList.on('reset', this.addSome, this);
+	    this.addSome();
 	  },
 	  events : {
 	  	'click form.sessions' : 'addSome'
@@ -280,10 +281,16 @@ var app = app || {};
 	  	var view = new app.UserView({model: user});
 	  	$('#user-container').append(view.render().el);
 	  },
+	  defaultMsg: function(){
+	  	if (document.getElementById("user-container").innerHTML == "") {
+	  		document.getElementById("user-container").innerHTML = "This is a private session"
+	  	};
+	  },
 	  addSome: function(){ 
       this.$('#user-container').html('');
-	    this.addCreator();
+	    //this.addCreator();
 	    app.permissionList.each(this.addOneIf, this);
+	    this.defaultMsg();
 	  },
 	  update_user: function(){
 	  	this.fetch({wait:true, reset: true})

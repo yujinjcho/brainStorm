@@ -1,4 +1,5 @@
 from operator import itemgetter
+import json
 from flask import (
 	render_template,
 	request,
@@ -91,13 +92,21 @@ def get_permissions(group_ids):
 	#permissions_query = Permission.query.filter(Permission.session.in_(set(group_ids))).all()
 
 	permissions_granted = [
-		{'id': permission.id,
-		 'granted_id': permission.granted_id, 
+		{'granted_id': permission.granted_id, 
 		 "session": permission.session}
 		for permission in all_permissions
 	]
-	#return permissions_granted
-	return permissions_granted
+	permissions_granter = [
+		{'granted_id': permission.granter_id, 
+		 "session": permission.session}
+		for permission in all_permissions
+	]
+	
+	combined_permissions = permissions_granted + permissions_granter
+	permitted_json = [json.dumps(p, sort_keys=True) for p in combined_permissions]
+	permitted_set = [json.loads(p) for p in list(set(permitted_json))]
+	return permitted_set
+
 
 def get_users(permissions):
 	#users_access = set([p['granted_id'] for p in permissions])
@@ -289,8 +298,6 @@ def autocomplete_countries():
 def create_permissions():
 	permission = request.get_json()
 	permission_q = Permission.query.filter(
-		Permission.granter_id == g.user.id
-	).filter(
 		Permission.granted_id == permission['granted_id']
 	).filter(
 		Permission.session == permission['session']

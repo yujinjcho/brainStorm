@@ -102,11 +102,11 @@
 		</div>
 		
 		<div id="group-container" class="no-show">
-			<input class="" type="text" name="country" id="autocomplete" placeholder="Search for a user"/>
+			<input class="" type="text" name="country" id="autocomplete" placeholder="Add users to this session"/>
 			<div class="idea-header" id="user-header">
 				<div class="title name">Group</div>
 			</div>
-			<div class="no-show" id="user-container">			
+			<div class="" id="user-container">			
 			</div>
 		</div>
 	</div>
@@ -181,9 +181,9 @@
 	    app.ratedIdeaList.reset( {{ rated | tojson }} );
 	    app.ratedIdeaListView = new app.RatedIdeaListView();
 
-			app.userListView = new app.UserListView();
+		app.userListView = new app.UserListView();
 	    app.permissionList.reset( {{ permissions | tojson }} );
-			app.userList.reset( {{ users | tojson }}, {wait:true} );
+		app.userList.reset( {{ users | tojson }}, {wait:true} );
 			
 
 	  </script>
