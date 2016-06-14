@@ -83,6 +83,7 @@ def get_ideas(group_ids):
 
 def get_permissions(group_ids):
 	all_permissions = Permission.query.all()
+	
 	if not all_permissions:
 		permissions_query = []
 	else:
@@ -93,9 +94,10 @@ def get_permissions(group_ids):
 		{'id': permission.id,
 		 'granted_id': permission.granted_id, 
 		 "session": permission.session}
-		for permission in permissions_query
+		for permission in all_permissions
 	]
-	return permissions_granted
+	#return permissions_granted
+	return all_permissions
 
 def get_users(permissions):
 	#users_access = set([p['granted_id'] for p in permissions])
