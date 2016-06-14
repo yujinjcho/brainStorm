@@ -259,7 +259,7 @@ var app = app || {};
 	app.UserListView = Backbone.View.extend({
 	  el: '#container',
 	  initialize: function(){
-	    app.permissionList.on('add', this.addSome, this);
+	    //app.permissionList.on('add', this.addSome, this);
 	    //app.permissionList.on('add', this.update_user, this);
 	    app.userList.on('reset', this.addSome, this);
 	    this.addSome();
@@ -274,12 +274,6 @@ var app = app || {};
 	    	$('#user-container').append(view.render().el);	
 		    	
 	    };
-	  },
-	  addCreator: function(){
-	  	var creator = app.sessionList.get(app.active_session.name).get('creator')
-	  	var user = app.userList.get(creator)
-	  	var view = new app.UserView({model: user});
-	  	$('#user-container').append(view.render().el);
 	  },
 	  defaultMsg: function(){
 	  	if (document.getElementById("user-container").innerHTML == "") {

@@ -306,6 +306,12 @@ def create_permissions():
 	if permission_q:
 		permission['id'] = permission_q.id
 		return _todo_response(permission)
+
+	permission_creator = Permission.query.filter(
+		Permission.granter_id == g.user.id
+	).filter(
+		Permission.session == permission['session']
+	).first()
 	
 	new_permission = Permission(
 		granter_id = g.user.id,
@@ -316,3 +322,9 @@ def create_permissions():
 	db.session.commit()
 	permission['id'] = new_permission.id
 	return _todo_response(permission)
+
+@app.route('/permissions')
+def update_permissions():
+	active_session, group_ids, groups = get_sessions()
+	permissions = get_permissions(group_ids)
+	return jsonify(permissions)
