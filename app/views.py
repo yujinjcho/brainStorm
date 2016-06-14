@@ -95,14 +95,7 @@ def get_permissions(group_ids):
 		 "session": permission.session}
 		for permission in permissions_query
 	]
-	permissions_granter = [
-		{'id': permission.id,
-		 'granted_id': permission.granter_id, 
-		 "session": permission.session}
-		for permission in permissions_query
-	]
-
-	return permissions_granted + permissions_granter
+	return permissions_granted
 
 def get_users(permissions):
 	#users_access = set([p['granted_id'] for p in permissions])

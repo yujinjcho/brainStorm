@@ -44,5 +44,6 @@ var app = app || {};
 	app.scoreList = new ScoreList();
 	app.permissionList = new PermissionList();
 	app.userList = new UserList();
+	
 
 })();
