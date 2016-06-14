@@ -268,11 +268,10 @@ var app = app || {};
 	  },
     addOneIf: function(permission){
       if (app.active_session.name == permission.get('session')){
-	    	var user = app.userList.get(permission.get('granted_id'))
-		    	if (app.active_user !== user.id){
-			    	var view = new app.UserView({model: user});
-			    	$('#user-container').append(view.render().el);	
-		    	}
+	    	var user = app.userList.get(permission.get('granted_id'))	
+	    	var view = new app.UserView({model: user});
+	    	$('#user-container').append(view.render().el);	
+		    	
 	    };
 	  },
 	  addCreator: function(){
