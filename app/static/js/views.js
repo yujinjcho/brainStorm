@@ -13,10 +13,6 @@ var app = app || {};
 	  },
 	  initialize: function(){
 	    this.render();
-	  },
-	  changeTitle: function(name){
-	    this.model.set({title:name});
-	    this.render();
 	  }
 	});
 
@@ -81,9 +77,6 @@ var app = app || {};
 	    	app.sessionListView.sessionHighlight();
 	  	}});
 	    this.input.val('');
-	  },
-	  addSessionCallback: function() {
-	  	this.addAll;
 	  },
 	  newSession: function() {
 	  	return {
@@ -213,14 +206,6 @@ var app = app || {};
 	  events: {
 	    'keypress .score' : 'update_Score'
 	  },
-	  addOne: function(title){
-	    var view = new app.RatedIdeaView({model: title});
-	    $('#rated-list').append(view.render().el)
-	  },
-	  addAll: function(){
-	    this.$('#rated-list').html('');
-	    app.ratedIdeaList.each(this.addOne, this);
-	  },
 	  ratedIdea: function(unranked_id, score) {
 	  	return {
 	  		"unranked_id": unranked_id,
@@ -259,8 +244,6 @@ var app = app || {};
 	app.UserListView = Backbone.View.extend({
 	  el: '#container',
 	  initialize: function(){
-	    //app.permissionList.on('add', this.addSome, this);
-	    //app.permissionList.on('add', this.update_user, this);
 	    app.userList.on('reset', this.addSome, this);
 	    this.addSome();
 	  },
@@ -282,7 +265,6 @@ var app = app || {};
 	  },
 	  addSome: function(){ 
       this.$('#user-container').html('');
-	    //this.addCreator();
 	    app.permissionList.each(this.addOneIf, this);
 	    this.defaultMsg();
 	  },
