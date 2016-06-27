@@ -33,7 +33,7 @@ var app = app || {};
 
 	app.sessionList = new SessionList();
 	app.sessionList.comparator = function(att){
-		return -Date.parse(att.get('lastModified'));
+		return -Date.parse(att.get('created'));
 	};
 
 	app.unratedIdeaList = new IdeaList();

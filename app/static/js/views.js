@@ -80,11 +80,11 @@ var app = app || {};
 	  },
 	  newSession: function() {
 	  	return {
-	  		title: this.input.val().trim()
+	  		name: this.input.val().trim()
 	  	};
 	  },
-	  addOne: function(title){
-	    var view = new app.SessionView({model: title});
+	  addOne: function(name){
+	    var view = new app.SessionView({model: name});
 	    $('#brainstorm-list').append(view.render().el)
 	  },
 	  addAll: function(){
@@ -119,8 +119,6 @@ var app = app || {};
 	    'keypress input#new-idea' : 'add_Idea',
 	    'click form.sessions' : 'change_Session',
 	    'click form.sessions i' : 'stopProp',
-    	'click a#manage-sessions' : 'manageSessions',
-    	'click a#show-sessions' : 'showSessions'
 	  },
 	  add_Idea: function(e){
 	    if (e.which !== 13 || !this.input.val().trim()){
@@ -164,36 +162,22 @@ var app = app || {};
 	  	this.addSome();
 	  	app.ratedIdeaListView.addSome();
 	  },
-    manageSessions: function(){
-      var viewElems = ['unrated-container', 'rated-container'];
-      var viewLength = viewElems.length;
-      
-      var toggleElems = ['group-container'];
-      var toggleLength = toggleElems.length;
-
-      for (var i = 0; i < viewLength; i++) {
-				document.getElementById(viewElems[i]).classList.add('no-show');      	
-      };
-
-      for (var i = 0; i < toggleLength; i++) {
-				document.getElementById(toggleElems[i]).classList.remove('no-show');      	
-      };
+    hideContainers: function(){
+    	document.getElementById('permission-container').classList.add('no-show');
+    	document.getElementById('rated-container').classList.add('no-show');
+    	document.getElementById('unrated-container').classList.add('no-show');
     },
-    showSessions: function(){
-      var viewElems = ['unrated-container', 'rated-container'];
-      var viewLength = viewElems.length;
-      
-      var toggleElems = ['group-container'];
-      var toggleLength = toggleElems.length;
-
-      for (var i = 0; i < viewLength; i++) {
-				document.getElementById(viewElems[i]).classList.remove('no-show');      	
-      };
-
-      for (var i = 0; i < toggleLength; i++) {
-				document.getElementById(toggleElems[i]).classList.add('no-show');      	
-      };
-
+    showUnratedIdeas: function(){
+    	app.unratedIdeaListView.hideContainers();
+    	document.getElementById('unrated-container').classList.remove('no-show');
+    },
+    showRatedIdeas: function(){
+    	app.unratedIdeaListView.hideContainers();
+    	document.getElementById('rated-container').classList.remove('no-show');
+    },
+    showPermissions: function(){
+    	app.unratedIdeaListView.hideContainers();
+    	document.getElementById('permission-container').classList.remove('no-show');
     }
 	});
 
@@ -208,7 +192,7 @@ var app = app || {};
 	  },
 	  ratedIdea: function(unranked_id, score) {
 	  	return {
-	  		"unranked_id": unranked_id,
+	  		"idea_id": unranked_id,
 	  		"score": score
 	  	};
 	  },
@@ -260,7 +244,7 @@ var app = app || {};
 	  },
 	  defaultMsg: function(){
 	  	if (document.getElementById("user-container").innerHTML == "") {
-	  		document.getElementById("user-container").innerHTML = "This is a private session"
+	  		document.getElementById("user-container").innerHTML = "No permissions have been granted"
 	  	};
 	  },
 	  addSome: function(){ 

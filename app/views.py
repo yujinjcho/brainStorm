@@ -20,8 +20,8 @@ from sqlalchemy import desc
 
 from app import app, db, facebook, lm
 from models import (
-    Sessions,
-    Unranked, 
+    IdeaSession,
+    Idea, 
     User, 
     Score, 
     Permission
@@ -36,27 +36,27 @@ def logout():
 def get_current_user():
     ########################################
     #FOR TESTING PURPOSES
-    #user = User.query.filter(User.id == 11).first()
-    #login_user(user, remember=True)
+    user = User.query.filter(User.id == 5).first()
+    login_user(user, remember=True)
     ########################################
     
     g.user = current_user
 
 def get_sessions():
     #get sessions created by logged in user
-    sessions_q = Sessions.query.filter(
-        Sessions.creator == g.user.id
-    ).order_by(Sessions.lastModified).all()
+    sessions_q = IdeaSession.query.filter(
+        IdeaSession.creator_id == g.user.id
+    ).order_by(IdeaSession.created).all()
 
     #get sessions that logged in user has received permission for
     permissions = Permission.query.filter(Permission.granted_id == g.user.id).all() 
-    permission_set = set([p.session for p in permissions])
+    permission_set = set([p.idea_session_id for p in permissions])
     if not permissions:
         permitted_sessions = []
     else:
-        permitted_sessions = Sessions.query.filter(Sessions.id.in_(permission_set)).all()
+        permitted_sessions = IdeaSession.query.filter(IdeaSession.id.in_(permission_set)).all()
 
-    groups = sorted([s.json_view() for s in sessions_q + permitted_sessions], key=itemgetter('lastModified'))
+    groups = sorted([s.json_view() for s in sessions_q + permitted_sessions], key=itemgetter('created'))
     group_ids = [int(s.id) for s in sessions_q + permitted_sessions]
 
     if not group_ids:
@@ -68,8 +68,8 @@ def get_sessions():
 
 def get_ideas(group_ids):
     scores = Score.query.filter(Score.user_id == g.user.id).all()
-    scored_ideas = [score.unranked_id for score in scores]
-    unrated_q = Unranked.query.filter(Unranked.session.in_(set(group_ids))).all()
+    scored_ideas = [score.idea_id for score in scores]
+    unrated_q = Idea.query.filter(Idea.idea_session_id.in_(set(group_ids))).all()
     
     unrated_ideas = [
         idea.json_view() for idea in unrated_q 
@@ -88,17 +88,16 @@ def get_permissions(group_ids):
     if not all_permissions:
         permissions_query = []
     else:
-        permissions_query = [p for p in all_permissions if p.session in group_ids]
-    #permissions_query = Permission.query.filter(Permission.session.in_(set(group_ids))).all()
-
+        permissions_query = [p for p in all_permissions if p.idea_session_id in group_ids]
+    
     permissions_granted = [
         {'granted_id': permission.granted_id, 
-         "session": permission.session}
+         "session": permission.idea_session_id}
         for permission in all_permissions
     ]
     permissions_granter = [
         {'granted_id': permission.granter_id, 
-         "session": permission.session}
+         "session": permission.idea_session_id}
         for permission in all_permissions
     ]
     
@@ -109,38 +108,42 @@ def get_permissions(group_ids):
 
 
 def get_users(permissions):
-    #users_access = set([p['granted_id'] for p in permissions])
-    #users_query = User.query.filter(User.id.in_(users_access)).all()
-
-    #sessions_q = Sessions.query.all();
-    #user_creators_set = set([s.creator for s in sessions_q])
-    #user_creators = User.query.filter(User.id.in_(user_creators_set)).all()
     user_creators = User.query.all()
-
-    #users = [u.json_view() for u in users_query + user_creators]
     users = [u.json_view() for u in user_creators]
     return users
 
 def clear_guest_data():
-    sessions_q = Sessions.query.filter(Sessions.creator == g.user.id).all()
+    sessions_q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id).all()
     session_set = [int(s.id) for s in sessions_q]
-    
-    
     scores = Score.query.filter(Score.user_id == g.user.id).delete(synchronize_session=False)
-    unrated_q = Unranked.query.filter(Unranked.session.in_(set(session_set))).delete(synchronize_session=False)
-    sessions_q = Sessions.query.filter(Sessions.creator == g.user.id).delete(synchronize_session=False)
+    unrated_q = Idea.query.filter(Idea.idea_session_id.in_(set(session_set))).delete(synchronize_session=False)
+    sessions_q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id).delete(synchronize_session=False)
     permissions_q = Permission.query.filter(Permission.granted_id == g.user.id).delete(synchronize_session=False)
     db.session.commit()
 
-def create_default_session(title, id):
-    new_group = Sessions(title=title, creator=id)
-    db.session.add(new_group)
+def create_default_session(name, id):
+    new_idea_session = IdeaSession(name=name, creator_id=id)
+    db.session.add(new_idea_session)
     db.session.commit()
 
+def guest_login():
+    user = User.query.filter(User.email == 'guest_account').first()
+    if not user:
+        user = User(
+            auth_server_id='Guest',
+            name='Guest',
+            email='guest_account',
+            profile_pic='Guest'
+        )
+        db.session.add(user)
+        db.session.commit()
+
+    return user
+        
 @app.route('/')
 def index():
     if not g.user.is_authenticated:
-        user = User.query.filter(User.id == 4).first()
+        user = guest_login()
         login_user(user, remember=True)
         clear_guest_data()
         create_default_session('Session 1', g.user.id)
@@ -150,8 +153,6 @@ def index():
     active_session, group_ids, groups = get_sessions()
     unrated_ideas, rated_ideas = get_ideas(group_ids)
     permissions = get_permissions(group_ids)
-
-    #return str(set([p['granted_id'] for p in permissions]))
     users = get_users(permissions)
     
     return render_template(
@@ -173,16 +174,18 @@ def update_users():
     return jsonify(users)
 
 @app.route('/sessions', methods=['POST'])
-def create_session():
-    if request.method == 'POST':
-        group = request.get_json()
-        new_group = Sessions(title=group['title'], creator=g.user.id)
-        db.session.add(new_group)
-        db.session.commit()
-        group["id"] = new_group.id
-        group["lastModified"] = new_group.lastModified
-        group["creator"] = new_group.creator
-        return _todo_response(group)
+def create_session():    
+    idea_session = request.get_json()
+
+    new_idea_session = IdeaSession(name=idea_session['name'], creator_id=g.user.id)
+    db.session.add(new_idea_session)
+    db.session.commit()
+
+    idea_session["id"] = new_idea_session.id
+    idea_session["created"] = new_idea_session.created
+    idea_session["creator_id"] = new_idea_session.creator_id
+
+    return _todo_response(idea_session)
 
 @app.route('/ideas')
 def get_idea_score():    
@@ -193,9 +196,10 @@ def get_idea_score():
 @app.route('/ideas', methods=['POST'])
 def create_idea():
     idea = request.get_json()
-    new_idea = Unranked(
-        session = idea['session'],
-        name = idea['name']
+    new_idea = Idea(
+        idea_session_id = idea['session'],
+        name = idea['name'],
+        creator_id = g.user.id
     )
     db.session.add(new_idea)
     db.session.commit() 
@@ -203,7 +207,7 @@ def create_idea():
     return _todo_response(idea)
 
 def update_average(idea_id):
-    idea = Unranked.query.filter_by(id=idea_id).first()
+    idea = Idea.query.filter_by(id=idea_id).first()
     scores_q = idea.scores.all()
     scores = [score.score for score in scores_q]
     idea.avg_score = sum(scores)/float(len(scores))
@@ -214,7 +218,7 @@ def update_average(idea_id):
 def create_score():
     score = request.get_json()
     new_score = Score(
-        unranked_id = score["unranked_id"],
+        idea_id = score["idea_id"],
         user_id = g.user.id,
         score = int(score["score"])
     )
@@ -222,7 +226,7 @@ def create_score():
     db.session.commit()
     score['id'] = new_score.id
     score['user_id'] = g.user.id
-    update_average(score["unranked_id"])
+    update_average(score["idea_id"])
     return _todo_response(score)
 
 def _todo_response(data):
@@ -279,6 +283,7 @@ def create_user(me):
     db.session.add(new_user)
     db.session.commit()
     login_user(new_user, remember=True)
+    create_default_session('Session 1', new_user.id)
     return new_user
 
 @lm.user_loader
@@ -300,23 +305,17 @@ def create_permissions():
     permission_q = Permission.query.filter(
         Permission.granted_id == permission['granted_id']
     ).filter(
-        Permission.session == permission['session']
+        Permission.idea_session_id == permission['session']
     ).first()
 
     if permission_q:
         permission['id'] = permission_q.id
         return _todo_response(permission)
 
-    permission_creator = Permission.query.filter(
-        Permission.granter_id == g.user.id
-    ).filter(
-        Permission.session == permission['session']
-    ).first()
-    
     new_permission = Permission(
         granter_id = g.user.id,
         granted_id = permission['granted_id'],
-        session = permission['session']
+        idea_session_id = permission['session']
     )
     db.session.add(new_permission)
     db.session.commit()
@@ -328,3 +327,21 @@ def update_permissions():
     active_session, group_ids, groups = get_sessions()
     permissions = get_permissions(group_ids)
     return jsonify(permissions)
+
+
+@app.route('/test_users')
+def create_test_users():
+    for i in range(10,18):
+        new_user = User(
+            auth_server_id='TEST',
+            name='user' + str(i),
+            email='email' + str(i),
+            profile_pic='http://www.lcfc.com/images/common/bg_player_profile_default_big.png'
+        )  
+
+        db.session.add(new_user)
+        db.session.commit()
+
+    return 'done'
+
+

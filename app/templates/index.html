@@ -12,7 +12,9 @@
 </head>
 <body>
 
-	
+	<!-- ========= -->
+	<!-- Navbar    -->
+	<!-- ========= -->
 
 	<nav class="navbar navbar-default">
 	  <div class="container-fluid">
@@ -24,6 +26,8 @@
 	        <span class="icon-bar"></span>
 	        <span class="icon-bar"></span>
 	      </button>
+
+	      
 	    </div>
 
 	    <!-- Collect the nav links, forms, and other content for toggling -->
@@ -32,6 +36,14 @@
 	      <ul class="nav navbar-nav">
 	        
 	        <li><a href="#"><i class="fa fa-cloud" aria-hidden="true"></i> Idea Storm</a></li>
+          {% if g.user.is_authenticated and g.user.email != 'guest_account' %}
+          	<li><a href="#" id='view-unrated-ideas'>Rate Ideas</a></li>
+	          <li><a href="#" id='view-rated-ideas'>Rated Ideas</a></li>
+	          <li><a href="#" id='view-permissions'>Permissions</a></li>
+	        {% else %}
+	        	<li><a href="#" id='view-unrated-ideas'>Rate Ideas</a></li>
+	          <li><a href="#" id='view-rated-ideas'>Rated Ideas</a></li>
+	        {% endif %}
 	      </ul>      
 	      
 	      <ul class="nav navbar-nav navbar-right">
@@ -44,16 +56,11 @@
 	          </a>
 	          <ul class="dropdown-menu">
 	            
-	            {% if g.user.is_authenticated and g.user.id != 4 %}
-			  		<li><a href="#" id="show-sessions">Show Sessions</a></li>
-			  		<li><a href="#" id="manage-sessions">Manage Sessions</a></li>
-			  		<li role="separator" class="divider"></li>
-			  		<li><a href="{{ url_for('logout') }}">Logout</a></li>
-			  	{% else %}
-			  		<li><a href="#" id="show-sessions" style="display: none">Show Sessions</a></li>
-			  		<li><a href="#" id="manage-sessions" style="display: none">Manage Sessions</a></li>
-			  		<li><a href="{{ url_for('login') }}">Login via Facebook</a></li>
-			  	{% endif %}
+	        	{% if g.user.is_authenticated and g.user.email != 'guest_account' %}
+			  			<li><a href="{{ url_for('logout') }}">Logout</a></li>
+			  		{% else %}
+				  		<li><a href="{{ url_for('login') }}">Login via Facebook</a></li>
+			  		{% endif %}
 	          </ul>
 	        </li>
 	      </ul>
@@ -63,17 +70,10 @@
 	
 	<div id='container'>
 
-		<!-- SESSIONS LEFT NAVBAR  -->
+		<!-- ========= -->
+		<!-- Groups    -->
+		<!-- ========= -->
 		<div id="left-bar">
-			
-			<!--
-			<div id="logo">			
-				<i class="fa fa-cloud fa-2x" aria-hidden="true"></i>
-				<div id="company">BrainStorm</div>
-				<div></div>
-			</div>
-			-->
-
 			<input type="text" id="session-name" placeholder="Add New Session" maxlength="15">
 			
 			<div id='brainstorm-list'></div>
@@ -81,31 +81,22 @@
 
 
 
-		<!--contains unrated ideas-->
-		<div id="unrated-container">
-			<div class="idea-header" id="header1">
-				<div class="title name">Rate</div>
-				<div class="title">Score</div>
-			</div>
-			<input type="text" id="new-idea" placeholder="Add New Idea Here" maxlength="25" name = "{{ active_session }}" autofocus/>
+		<!-- ========= -->
+		<!--   Main    -->
+		<!-- ========= -->
+		<div id="unrated-container" class="">
+			<input type="text" id="new-idea" placeholder="Add New Idea" maxlength="25" name = "{{ active_session }}" autofocus/>
 			<div class="idea-container" id="unrated-list">
 			</div>
 		</div>
 
-		<div id="rated-container">
-			<div class="idea-header rated-header" id="header2">
-				<div class="title name">Rated</div>
-				<div class="title">Average</div>
-			</div>
+		<div id="rated-container" class="no-show">
 			<div class="idea-container rated" id="rated-list">
 			</div>
 		</div>
 		
-		<div id="group-container" class="no-show">
+		<div id="permission-container" class="no-show">
 			<input class="" type="text" name="country" id="autocomplete" placeholder="Add users to this session"/>
-			<div class="idea-header" id="user-header">
-				<div class="title name">Group</div>
-			</div>
 			<div class="" id="user-container">			
 			</div>
 		</div>
@@ -117,13 +108,14 @@
 	  <!-- ========= -->
 	  <script type="text/template" id="session-template">
 	    <form class="sessions" id="<%- id %>">
-	    	<i class="fa fa-bars" aria-hidden="true"></i>&nbsp&nbsp <%- title %>
+	    	<i class="fa fa-bars" aria-hidden="true"></i>&nbsp&nbsp <%- name %>
 	    </form>		
 	  </script>
 
 	  <script type="text/template" id="idea-template">
 	    <div class="idea">
 	    	<div class="idea-name"><%- name %></div>
+	    	<div class="idea-description"><a href='#'>Add Description</></div>
 	    	<input type="number" max="10" min="1" name="<%- name %>" class="score" placeholder="1-10" id="i<%- id %>">
 	    </div>
 	  </script>
@@ -132,6 +124,7 @@
 	  <script type="text/template" id="rated-idea-template">
 	    <div class="idea">	    	
 	    	<div class="idea-name"><%- name %></div>
+	    	<div class="idea-description">No Description</div>
 	    	<div class="avg-score"><%- score %></div>
 	    </div>
 	  </script>
@@ -181,9 +174,9 @@
 	    app.ratedIdeaList.reset( {{ rated | tojson }} );
 	    app.ratedIdeaListView = new app.RatedIdeaListView();
 
-		app.userListView = new app.UserListView();
-	    app.permissionList.reset( {{ permissions | tojson }} );
-		app.userList.reset( {{ users | tojson }}, {wait:true} );
+			app.userListView = new app.UserListView();
+		  app.permissionList.reset( {{ permissions | tojson }} );
+			app.userList.reset( {{ users | tojson }}, {wait:true} );
 			
 
 	  </script>

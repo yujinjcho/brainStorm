@@ -4,9 +4,9 @@ var app = app || {};
 (function () {
 
 	app.Session = Backbone.Model.extend({
-		defaults:{title:''},
+		defaults:{name:''},
 		getTitle:function(){
-		  return this.title;
+		  return this.name;
 	  }
 	});
 

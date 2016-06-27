@@ -2,16 +2,22 @@ var app = app || {};
 
 (function(){
 
-  var manageSessions = document.getElementById(
-    'manage-sessions'
+  var viewUnratedIdeas = document.getElementById(
+    'view-unrated-ideas'
   ).addEventListener(
-    'click', app.unratedIdeaListView.manageSessions
+    'click', app.unratedIdeaListView.showUnratedIdeas
   );
-  
-  var showSessions = document.getElementById(
-    'show-sessions'
+
+  var viewRatedIdeas = document.getElementById(
+    'view-rated-ideas'
   ).addEventListener(
-    'click', app.unratedIdeaListView.showSessions
+    'click', app.unratedIdeaListView.showRatedIdeas
+  );
+
+  var viewPermissions = document.getElementById(
+    'view-permissions'
+  ).addEventListener(
+    'click', app.unratedIdeaListView.showPermissions
   );
 
   $('#autocomplete').autocomplete({
