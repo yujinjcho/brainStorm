@@ -36,7 +36,7 @@ def logout():
 def get_current_user():
     ########################################
     #FOR TESTING PURPOSES
-    user = User.query.filter(User.id == 5).first()
+    user = User.query.filter(User.name == 'user26').first()
     login_user(user, remember=True)
     ########################################
     
@@ -95,13 +95,8 @@ def get_permissions(group_ids):
          "session": permission.idea_session_id}
         for permission in all_permissions
     ]
-    permissions_granter = [
-        {'granted_id': permission.granter_id, 
-         "session": permission.idea_session_id}
-        for permission in all_permissions
-    ]
     
-    combined_permissions = permissions_granted + permissions_granter
+    combined_permissions = permissions_granted
     permitted_json = [json.dumps(p, sort_keys=True) for p in combined_permissions]
     permitted_set = [json.loads(p) for p in list(set(permitted_json))]
     return permitted_set
@@ -116,15 +111,21 @@ def clear_guest_data():
     sessions_q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id).all()
     session_set = [int(s.id) for s in sessions_q]
     scores = Score.query.filter(Score.user_id == g.user.id).delete(synchronize_session=False)
+    permissions_q = Permission.query.filter(Permission.granted_id == g.user.id).delete(synchronize_session=False)
     unrated_q = Idea.query.filter(Idea.idea_session_id.in_(set(session_set))).delete(synchronize_session=False)
     sessions_q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id).delete(synchronize_session=False)
-    permissions_q = Permission.query.filter(Permission.granted_id == g.user.id).delete(synchronize_session=False)
     db.session.commit()
 
-def create_default_session(name, id):
+def commit_session(name, id):
     new_idea_session = IdeaSession(name=name, creator_id=id)
     db.session.add(new_idea_session)
     db.session.commit()
+
+    new_permission = commit_permission(g.user.id, new_idea_session.id)
+    db.session.add(new_permission)
+    db.session.commit()    
+
+    return new_idea_session
 
 def guest_login():
     user = User.query.filter(User.email == 'guest_account').first()
@@ -138,15 +139,15 @@ def guest_login():
         db.session.add(user)
         db.session.commit()
 
-    return user
+    login_user(user, remember=True)
+    clear_guest_data()
+    commit_session('Session 1', g.user.id)
+
         
 @app.route('/')
 def index():
     if not g.user.is_authenticated:
-        user = guest_login()
-        login_user(user, remember=True)
-        clear_guest_data()
-        create_default_session('Session 1', g.user.id)
+        guest_login()
         return redirect(url_for('index'))
     
     active_user = g.user
@@ -177,9 +178,15 @@ def update_users():
 def create_session():    
     idea_session = request.get_json()
 
-    new_idea_session = IdeaSession(name=idea_session['name'], creator_id=g.user.id)
-    db.session.add(new_idea_session)
-    db.session.commit()
+    new_idea_session = commit_session(name=idea_session['name'], id=g.user.id)
+
+    #new_idea_session = IdeaSession(name=idea_session['name'], creator_id=g.user.id)
+    #db.session.add(new_idea_session)
+    #db.session.commit()
+
+    #new_permission = commit_permission(g.user.id, new_idea_session.id)
+    #db.session.add(new_permission)
+    #db.session.commit()    
 
     idea_session["id"] = new_idea_session.id
     idea_session["created"] = new_idea_session.created
@@ -226,7 +233,7 @@ def create_score():
     db.session.commit()
     score['id'] = new_score.id
     score['user_id'] = g.user.id
-    update_average(score["idea_id"])
+    #update_average(score["idea_id"])
     return _todo_response(score)
 
 def _todo_response(data):
@@ -283,7 +290,7 @@ def create_user(me):
     db.session.add(new_user)
     db.session.commit()
     login_user(new_user, remember=True)
-    create_default_session('Session 1', new_user.id)
+    commit_session('Session 1', new_user.id)
     return new_user
 
 @lm.user_loader
@@ -312,15 +319,25 @@ def create_permissions():
         permission['id'] = permission_q.id
         return _todo_response(permission)
 
+    new_permission = commit_permission(permission['granted_id'], permission['session'])
+    #new_permission = Permission(
+    #    granted_id = permission['granted_id'],
+    #    idea_session_id = permission['session']
+    #)
+
+    #db.session.add(new_permission)
+    #db.session.commit()
+    permission['id'] = new_permission.id
+    return _todo_response(permission)
+
+def commit_permission(id, idea_session_id):
     new_permission = Permission(
-        granter_id = g.user.id,
-        granted_id = permission['granted_id'],
-        idea_session_id = permission['session']
+        granted_id = id,
+        idea_session_id = idea_session_id
     )
     db.session.add(new_permission)
     db.session.commit()
-    permission['id'] = new_permission.id
-    return _todo_response(permission)
+    return new_permission
 
 @app.route('/permissions')
 def update_permissions():
@@ -331,7 +348,7 @@ def update_permissions():
 
 @app.route('/test_users')
 def create_test_users():
-    for i in range(10,18):
+    for i in range(25,30):
         new_user = User(
             auth_server_id='TEST',
             name='user' + str(i),
@@ -342,6 +359,11 @@ def create_test_users():
         db.session.add(new_user)
         db.session.commit()
 
-    return 'done'
+    return 'test users created'
 
-
+@app.route('/test_cascade')
+def test_cascade():
+    user = User.query.filter(User.email == 'yujinjcho@gmail.com').first()
+    db.session.delete(user)
+    db.session.commit()
+    return 'deleted user'

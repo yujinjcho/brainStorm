@@ -10,6 +10,7 @@ lm = LoginManager()
 lm.init_app(app)
 
 db = SQLAlchemy(app)
+
 oauth = OAuth(app)
 
 facebook = oauth.remote_app(

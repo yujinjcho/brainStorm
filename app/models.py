@@ -1,39 +1,8 @@
 from app import db
 from datetime import datetime
 from sqlalchemy_utils import aggregated
-
-class IdeaSession(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    description = db.Column(db.String, default='No Description')
-    created = db.Column(db.DateTime, default=datetime.utcnow)
-    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    def json_view(self):
-        return {"id": self.id, "name": self.name, "created": self.created, "creator": self.creator_id}
-
-class Idea(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    idea_session_id = db.Column(db.Integer, db.ForeignKey('idea_session.id'), nullable=False)
-    name = db.Column(db.String, nullable=False)
-    avg_score = db.Column(db.Numeric(3,1), default=None)
-    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-    def json_view(self):
-        return {"id": self.id, "session": self.idea_session_id, "name": self.name, "score": str(self.avg_score)}
-
-class Score(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    score = db.Column(db.Integer, nullable=False)
-    idea_id = db.Column(db.Integer, db.ForeignKey('idea.id'), nullable=False)
-    idea = db.relationship('Idea', backref=db.backref('scores',lazy='dynamic'))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-class Permission(db.Model):
-    id = db.Column(db.Integer, nullable=False, primary_key=True)
-    granter_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    granted_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    idea_session_id = db.Column(db.Integer, db.ForeignKey('idea_session.id'), nullable=False)
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import select, func
 
 class User(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
@@ -44,9 +13,11 @@ class User(db.Model):
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False)
     profile_pic = db.Column(db.String, nullable=False)
-    idea_session = db.relationship("IdeaSession", backref='user', cascade="all, delete-orphan")
-    ideas = db.relationship("Idea", backref='user', cascade="all, delete-orphan")
-    scores = db.relationship("Score", backref='user', cascade="all, delete-orphan")
+    
+    idea_session = db.relationship("IdeaSession", cascade='delete')
+    ideas = db.relationship("Idea", cascade='delete')
+    scores = db.relationship("Score", cascade='delete')
+    permissions = db.relationship("Permission", cascade='delete')
 
     @property
     def is_authenticated(self):
@@ -69,3 +40,49 @@ class User(db.Model):
         except NameError:
             return str(self.id)  # python 3
 
+class IdeaSession(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, default='No Description')
+    created = db.Column(db.DateTime, default=datetime.utcnow)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    idea = db.relationship("Idea", cascade='delete')
+    permissions = db.relationship("Permission", cascade='delete')
+
+    def json_view(self):
+        return {"id": self.id, "name": self.name, "created": self.created, "creator": self.creator_id}
+
+class Idea(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    idea_session_id = db.Column(db.Integer, db.ForeignKey('idea_session.id'), nullable=False)
+    name = db.Column(db.String, nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    scores = db.relationship("Score", backref='idea', cascade='delete', lazy='dynamic')
+
+    @hybrid_property
+    def avg_score(self):
+        scores_for_idea = [score.score for score in self.scores]
+        if len(scores_for_idea) == 0:
+            return 0
+        return sum(scores_for_idea)/float(len(scores_for_idea))
+
+    @avg_score.expression
+    def avg_score(cls):
+        return select([func.sum(Score.score)/func.count(Score.score)]).\
+            where(Score.idea_id==cls.id)
+
+    def json_view(self):
+        score_format = '%.1f' % self.avg_score
+        return {"id": self.id, "session": self.idea_session_id, "name": self.name, "score": score_format}
+
+class Score(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    score = db.Column(db.Integer, nullable=False)
+    idea_id = db.Column(db.Integer, db.ForeignKey('idea.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Permission(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    granted_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    idea_session_id = db.Column(db.Integer, db.ForeignKey('idea_session.id'), nullable=False)
