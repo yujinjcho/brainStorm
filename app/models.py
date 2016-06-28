@@ -67,11 +67,6 @@ class Idea(db.Model):
             return 0
         return sum(scores_for_idea)/float(len(scores_for_idea))
 
-    @avg_score.expression
-    def avg_score(cls):
-        return select([func.sum(Score.score)/func.count(Score.score)]).\
-            where(Score.idea_id==cls.id)
-
     def json_view(self):
         score_format = '%.1f' % self.avg_score
         return {"id": self.id, "session": self.idea_session_id, "name": self.name, "score": score_format}

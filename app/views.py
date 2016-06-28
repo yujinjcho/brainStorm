@@ -36,17 +36,17 @@ def logout():
 def get_current_user():
     ########################################
     #FOR TESTING PURPOSES
-    user = User.query.filter(User.name == 'user26').first()
-    login_user(user, remember=True)
+    #user = User.query.filter(User.name == 'user26').first()
+    #login_user(user, remember=True)
     ########################################
     
     g.user = current_user
 
 def get_sessions():
     #get sessions created by logged in user
-    sessions_q = IdeaSession.query.filter(
-        IdeaSession.creator_id == g.user.id
-    ).order_by(IdeaSession.created).all()
+    #sessions_q = IdeaSession.query.filter(
+    #    IdeaSession.creator_id == g.user.id
+    #).order_by(IdeaSession.created).all()
 
     #get sessions that logged in user has received permission for
     permissions = Permission.query.filter(Permission.granted_id == g.user.id).all() 
@@ -56,8 +56,10 @@ def get_sessions():
     else:
         permitted_sessions = IdeaSession.query.filter(IdeaSession.id.in_(permission_set)).all()
 
-    groups = sorted([s.json_view() for s in sessions_q + permitted_sessions], key=itemgetter('created'))
-    group_ids = [int(s.id) for s in sessions_q + permitted_sessions]
+    #groups = sorted([s.json_view() for s in sessions_q + permitted_sessions], key=itemgetter('created'))
+    #group_ids = [int(s.id) for s in sessions_q + permitted_sessions]
+    groups = sorted([s.json_view() for s in permitted_sessions], key=itemgetter('created'))
+    group_ids = [int(s.id) for s in permitted_sessions]
 
     if not group_ids:
         active_session = None

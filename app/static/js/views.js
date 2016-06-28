@@ -75,6 +75,9 @@ var app = app || {};
 	    	app.ratedIdeaListView.addSome();
 	    	app.userListView.addSome();
 	    	app.sessionListView.sessionHighlight();
+	    	app.permissionList.fetch({wait:true, success: function(){
+	    		app.userListView.addSome();
+	    	}})
 	  	}});
 	    this.input.val('');
 	  },
@@ -242,15 +245,9 @@ var app = app || {};
 		    	
 	    };
 	  },
-	  defaultMsg: function(){
-	  	if (document.getElementById("user-container").innerHTML == "") {
-	  		document.getElementById("user-container").innerHTML = "No permissions have been granted"
-	  	};
-	  },
 	  addSome: function(){ 
       this.$('#user-container').html('');
 	    app.permissionList.each(this.addOneIf, this);
-	    this.defaultMsg();
 	  },
 	  update_user: function(){
 	  	this.fetch({wait:true, reset: true})
