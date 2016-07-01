@@ -36,8 +36,10 @@ def logout():
 def get_current_user():
     ########################################
     #FOR TESTING PURPOSES
-    #user = User.query.filter(User.name == 'user26').first()
-    #login_user(user, remember=True)
+    user = User.query.filter(User.name == 'user25').first()
+    #user = User.query.filter(User.name == 'Yujin Cho').first()
+    
+    login_user(user, remember=True)
     ########################################
     
     g.user = current_user
@@ -213,6 +215,18 @@ def create_idea():
     db.session.add(new_idea)
     db.session.commit() 
     idea['id'] = new_idea.id
+    idea['description'] = None
+    idea['creator_id'] = g.user.id
+    return _todo_response(idea)
+
+@app.route('/ideas/<int:idea_id>', methods=['PUT'])
+def update_description(idea_id):
+    idea = request.get_json()
+    update_idea = Idea.query.filter(Idea.id == idea_id).first()
+    update_idea.description = idea['description']
+    db.session.add(update_idea)
+    db.session.commit()
+    idea["id"] = update_idea.id
     return _todo_response(idea)
 
 def update_average(idea_id):

@@ -43,7 +43,6 @@ class User(db.Model):
 class IdeaSession(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    description = db.Column(db.String, default='No Description')
     created = db.Column(db.DateTime, default=datetime.utcnow)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     idea = db.relationship("Idea", cascade='delete')
@@ -57,6 +56,7 @@ class Idea(db.Model):
     idea_session_id = db.Column(db.Integer, db.ForeignKey('idea_session.id'), nullable=False)
     name = db.Column(db.String, nullable=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    description = db.Column(db.String, default=None)
 
     scores = db.relationship("Score", backref='idea', cascade='delete', lazy='dynamic')
 
@@ -69,7 +69,14 @@ class Idea(db.Model):
 
     def json_view(self):
         score_format = '%.1f' % self.avg_score
-        return {"id": self.id, "session": self.idea_session_id, "name": self.name, "score": score_format}
+        return {
+            "id": self.id, 
+            "session": self.idea_session_id,
+            "creator_id" : self.creator_id,
+            "name": self.name, 
+            "score": score_format,
+            "description": self.description
+        }
 
 class Score(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)

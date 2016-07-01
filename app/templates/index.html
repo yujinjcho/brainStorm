@@ -115,7 +115,24 @@
 	  <script type="text/template" id="idea-template">
 	    <div class="idea">
 	    	<div class="idea-name"><%- name %></div>
-	    	<div class="idea-description"><a href='#'>Add Description</></div>
+	    	<div class="idea-description">
+	    	
+    			<% if (description == null && creator_id == app.active_user) { %>
+    				<a href='#' class=''>
+    					Add Description
+    				</a>
+    			<% } else if (description !== null && creator_id == app.active_user) { %>
+    				<a href='#' class=''>
+    					<%- description %>
+    				</a>
+    			<% } else if (description == null && creator_id !== app.active_user) { %>
+    				No Description
+    			<% } else { %>
+    				<%- description %>
+    			<% } %>
+	    		
+	    		<textarea class="no-show idea-description-text" placeholder="Add Description" maxlength='120' id="d<%- id %>"/>
+	    		</div>
 	    	<input type="number" max="10" min="1" name="<%- name %>" class="score" placeholder="1-10" id="i<%- id %>">
 	    </div>
 	  </script>
@@ -124,7 +141,15 @@
 	  <script type="text/template" id="rated-idea-template">
 	    <div class="idea">	    	
 	    	<div class="idea-name"><%- name %></div>
-	    	<div class="idea-description">No Description</div>
+	    	<div class="idea-description">
+
+	    		<% if (description == null) { %>
+	    			No Description
+	    		<% } else { %>
+	    			<%- description %>
+	    		<% } %>
+
+	    	</div>
 	    	<div class="avg-score"><%- score %></div>
 	    </div>
 	  </script>

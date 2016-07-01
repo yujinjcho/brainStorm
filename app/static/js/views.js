@@ -113,15 +113,18 @@ var app = app || {};
 	    this.input = this.$('#new-idea');
 	    app.active_session = document.getElementById('new-idea');
 	    app.unratedIdeaList.on('add', this.addSome, this);
-      	app.unratedIdeaList.on('remove', this.addSome, this);
+      app.unratedIdeaList.on('remove', this.addSome, this);
 	    app.unratedIdeaList.on('reset', this.addSome, this);
+	    app.unratedIdeaList.on('change', this.addSome, this);
 	    this.addSome();
-	    //this.manageSessions();
 	  },
 	  events: {
 	    'keypress input#new-idea' : 'add_Idea',
 	    'click form.sessions' : 'change_Session',
 	    'click form.sessions i' : 'stopProp',
+	    'click div.idea-description a' : 'editDescription',
+	    'blur .idea-description-text' : 'updateDescription',
+	    'keypress .idea-description-text' : 'enterTextArea'
 	  },
 	  add_Idea: function(e){
 	    if (e.which !== 13 || !this.input.val().trim()){
@@ -181,6 +184,37 @@ var app = app || {};
     showPermissions: function(){
     	app.unratedIdeaListView.hideContainers();
     	document.getElementById('permission-container').classList.remove('no-show');
+    },
+    updateDescription: function(e){
+			if (e.target.value.trim() == '') {
+	    	app.unratedIdeaListView.closeEditDescription(e);	
+	    	return;
+	    };    	
+
+    	var idea = e.target.id.slice(1);
+	  	var description = e.target.value;
+	  	var ideaModel = app.unratedIdeaList.get(idea);
+	  	ideaModel.save({'description':description});
+	  	app.unratedIdeaListView.closeEditDescription(e);
+    },
+    closeEditDescription: function(e){
+    	e.target.classList.add('no-show');
+    	var descriptionAdd = e.target.parentNode.childNodes[1]
+    	descriptionAdd.classList.remove('no-show');
+    },
+    editDescription: function(e){
+    	e.target.classList.add('no-show');
+    	var descriptionText = e.target.parentNode.childNodes[3]
+    	descriptionText.classList.remove('no-show');
+    	descriptionText.focus();
+    },
+    enterTextArea: function(e){
+
+    	if (e.which !== 13 || e.target.value.trim() == '') {
+	    	return;
+	    };
+
+	    e.target.blur();
     }
 	});
 
