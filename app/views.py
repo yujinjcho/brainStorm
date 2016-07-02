@@ -36,8 +36,8 @@ def logout():
 def get_current_user():
     ########################################
     #FOR TESTING PURPOSES
-    #user = User.query.filter(User.name == 'user25').first()
-    user = User.query.filter(User.name == 'Yujin Cho').first()
+    user = User.query.filter(User.name == 'user25').first()
+    #user = User.query.filter(User.name == 'Yujin Cho').first()
     
     login_user(user, remember=True)
     ########################################
@@ -83,7 +83,6 @@ def get_ideas(group_ids):
         idea.json_view() for idea in unrated_q 
         if idea.id in scored_ideas
     ]
-
     return unrated_ideas, rated_ideas
 
 def get_permissions(group_ids):

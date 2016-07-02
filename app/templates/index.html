@@ -143,8 +143,9 @@
 
 
 	  <script type="text/template" id="rated-idea-template">
-	    <div class="idea">	    	
-	    	<div class="idea-name"><%- name %></div>
+	    <div class="rated-idea">	    	
+	    	<div class="idea-counter"><%- count %></div>
+	    	<div class="idea-name"><%- name %><div class='idea-name-box'></div><div class="avg-score">Average Score: <%- score %></div></div>
 	    	<div class="idea-description">
 
 	    		<% if (description == null) { %>
@@ -155,7 +156,7 @@
 
 	    	</div>
 	    	
-	    	<div class="rateYo avg-score"></div>
+	    	
 
 	    </div>
 	  </script>

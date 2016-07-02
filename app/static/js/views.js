@@ -182,6 +182,8 @@ var app = app || {};
     	document.getElementById('permission-container').classList.add('no-show');
     	document.getElementById('rated-container').classList.add('no-show');
     	document.getElementById('unrated-container').classList.add('no-show');
+
+    	
     },
     showUnratedIdeas: function(){
     	app.unratedIdeaListView.hideContainers();
@@ -281,6 +283,8 @@ var app = app || {};
 	  },
 	  addOneIf: function(idea){
       if (app.active_session.name == idea.get('session')){
+	    	app.ratedIdeaList.count += 1;
+	    	idea.set("count", app.ratedIdeaList.count);
 	    	var view = new app.RatedIdeaView({model: idea});
 	    	$('#rated-list').append(view.render().el);	
 	    	this.renderStar(idea.get('score'));
@@ -288,8 +292,8 @@ var app = app || {};
 	  },
 	  addSome: function(){ 
       this.$('#rated-list').html('');
+	    app.ratedIdeaList.count = 0;
 	    app.ratedIdeaList.each(this.addOneIf, this);
-	    
 	  },
 	  renderStar: function(rating){
 	  	$(".rateYo").rateYo({
