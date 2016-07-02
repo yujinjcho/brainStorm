@@ -102,21 +102,23 @@ input#new-idea {
 }
 
 div.idea-name {
-	width: 190px;
+	width: 208px;
 	height: 30px;
 	display: inline-block;
 	margin-top: 45px;
 	font-size: 14px;
 	line-height: 25px;
 	font-weight: bold;
+	
 }
 
 div.idea-description {
-	width: 190px;
-	height: 30px;
+	width: 208px;
+	height: 100px;
 	display: inline-block;
 	font-size: 12px;
-	line-height: 25px;
+	
+	line-height: 20px;
 }
 
 input.score {
@@ -129,7 +131,6 @@ input.score {
 
 div.avg-score {
 	display: inline-block;
-	margin-left: 10px;
 	text-align: center;
 	width: 30px;
 	font-size: 14px;
@@ -185,13 +186,13 @@ div.rated {
 }
 
 div.idea {
-	border: 1px solid rgba(220, 220, 220, 1);
+	border: 1px solid rgba(200, 200, 200, 1);
 	margin: 10px;
 	border-radius: 10px;
 	width: 240px;
 	height: 240px;
 	padding-left: 15px;
-	line-height: 40px;
+	
 	background-color:white;
 	float: left;
 	font-family: Tahoma;
@@ -398,14 +399,15 @@ div#permission-container {
 	left: 280px;
 }
 
-div.idea-description{
+
+
+div.idea-description textarea {
+	border: 1px solid rgba(180,180,180,1);
+	width: 206px;
+	height: 85px;
 	line-height: 20px;
 }
 
-div.idea-description textarea {
-	margin-top: 10px;
-	border: 1px solid rgba(180,180,180,1);
-	width: 206px;
-	height: 60px;
-	line-height: 20px;
+.rateYo {
+	left: 6px;
 }

@@ -75,6 +75,7 @@ var app = app || {};
 	    	app.ratedIdeaListView.addSome();
 	    	app.userListView.addSome();
 	    	app.sessionListView.sessionHighlight();
+	    	
 	    	app.permissionList.fetch({wait:true, success: function(){
 	    		app.userListView.addSome();
 	    	}})
@@ -162,6 +163,15 @@ var app = app || {};
 	    this.$('#unrated-list').html('');
 	    app.unratedIdeaList.each(this.addOneIf, this);
 	    app.sessionListView.sessionHighlight();
+	   	this.renderStars();
+	  },
+	  renderStars: function(){
+	  	$(".rateYo").rateYo({
+	  	  rating: 0,
+	  	  halfStar: true,
+	  	  spacing: '6px',
+	  	  precision: 2
+	  	});
 	  },
 	  change_Session: function(e){	  	
 	  	app.active_session.setAttribute('name', e.target.id);
@@ -196,6 +206,7 @@ var app = app || {};
 	  	var ideaModel = app.unratedIdeaList.get(idea);
 	  	ideaModel.save({'description':description});
 	  	app.unratedIdeaListView.closeEditDescription(e);
+	  	e.target.value = '';
     },
     closeEditDescription: function(e){
     	e.target.classList.add('no-show');
@@ -225,7 +236,8 @@ var app = app || {};
 	    this.addSome();
 	  },
 	  events: {
-	    'keypress .score' : 'update_Score'
+	    'keypress .score' : 'update_Score',
+	    'click .score' : 'update_Score2'
 	  },
 	  ratedIdea: function(unranked_id, score) {
 	  	return {
@@ -250,15 +262,41 @@ var app = app || {};
   	  }})
 	  	
 	  },
+	  update_Score2: function(e){			
+			var element = e.target;
+			while (element.id[0] != 'i') {
+				element = element.parentNode;
+			};
+			
+			var idea = element.id.slice(1);
+			$('#c' + idea).hide(600);
+			var score = $('#' + element.id).rateYo("option", "rating")*2;
+
+			app.scoreList.create(this.ratedIdea(idea, score), {success: function(){
+  	  	app.ratedIdeaList.fetch({wait:true, reset:true, success:function(){
+  	  		app.unratedIdeaList.remove(app.unratedIdeaList.get(parseInt(idea)));
+  	  	}});
+  	  }})
+
+	  },
 	  addOneIf: function(idea){
       if (app.active_session.name == idea.get('session')){
 	    	var view = new app.RatedIdeaView({model: idea});
 	    	$('#rated-list').append(view.render().el);	
+	    	this.renderStar(idea.get('score'));
 	    };
 	  },
 	  addSome: function(){ 
       this.$('#rated-list').html('');
 	    app.ratedIdeaList.each(this.addOneIf, this);
+	    
+	  },
+	  renderStar: function(rating){
+	  	$(".rateYo").rateYo({
+	  	  rating: rating/2,
+	  	  readOnly: true,
+	  	  spacing: '6px'
+	  	});
 	  },
 	});
 

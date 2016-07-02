@@ -6,6 +6,8 @@
 	<title>BrainStorm</title>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/stylesheet.css') }}">
 	<link href='https://fonts.googleapis.com/css?family=Roboto:400,300,400italic,500,900,700,300italic' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.1.1/jquery.rateyo.min.css">
+	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 	<script src="{{ url_for('static', filename='js/jquery.autocomplete.min.js') }}"></script>
 	
@@ -113,7 +115,7 @@
 	  </script>
 
 	  <script type="text/template" id="idea-template">
-	    <div class="idea">
+	    <div class="idea" id='c<%- id %>'>
 	    	<div class="idea-name"><%- name %></div>
 	    	<div class="idea-description">
 	    	
@@ -131,9 +133,11 @@
     				<%- description %>
     			<% } %>
 	    		
-	    		<textarea class="no-show idea-description-text" placeholder="Add Description" maxlength='120' id="d<%- id %>"/>
-	    		</div>
-	    	<input type="number" max="10" min="1" name="<%- name %>" class="score" placeholder="1-10" id="i<%- id %>">
+    			<textarea class="no-show idea-description-text" placeholder="Add Description" maxlength='120' id="d<%- id %>"/>
+    		</div>
+	    	
+    		<div class="rateYo score" id="i<%- id %>"></div>
+
 	    </div>
 	  </script>
 
@@ -150,7 +154,9 @@
 	    		<% } %>
 
 	    	</div>
-	    	<div class="avg-score"><%- score %></div>
+	    	
+	    	<div class="rateYo avg-score"></div>
+
 	    </div>
 	  </script>
 
@@ -182,10 +188,11 @@
 	  <!-- =============== -->
 	  <!-- Javascript code -->
 	  <!-- =============== -->
+	  
 	  <script src="{{ url_for('static', filename='js/model.js') }}"></script>
 	  <script src="{{ url_for('static', filename='js/collection.js') }}"></script>
 	  <script src="{{ url_for('static', filename='js/views.js') }}"></script>
-	  
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.1.1/jquery.rateyo.min.js"></script>
 
 	  <script type="text/javascript">
 	    app.active_user = {{ user.id }}
@@ -202,10 +209,11 @@
 			app.userListView = new app.UserListView();
 		  app.permissionList.reset( {{ permissions | tojson }} );
 			app.userList.reset( {{ users | tojson }}, {wait:true} );
-			
 
 	  </script>
 	  <script src="{{ url_for('static', filename='js/user-search.js') }}"></script>
+	  
+	  
 
 </body>
 </html>

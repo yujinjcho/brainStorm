@@ -36,8 +36,8 @@ def logout():
 def get_current_user():
     ########################################
     #FOR TESTING PURPOSES
-    user = User.query.filter(User.name == 'user25').first()
-    #user = User.query.filter(User.name == 'Yujin Cho').first()
+    #user = User.query.filter(User.name == 'user25').first()
+    user = User.query.filter(User.name == 'Yujin Cho').first()
     
     login_user(user, remember=True)
     ########################################
