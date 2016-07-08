@@ -39,7 +39,7 @@ var app = app || {};
 	app.unratedIdeaList = new IdeaList();
 	app.ratedIdeaList = new IdeaList();
 	app.ratedIdeaList.comparator = function(att){
-		return -parseInt(att.get('score'));
+		return -parseFloat(att.get('score'));
 	};
 	app.scoreList = new ScoreList();
 	app.permissionList = new PermissionList();

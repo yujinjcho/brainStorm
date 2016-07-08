@@ -242,7 +242,7 @@ def create_score():
     new_score = Score(
         idea_id = score["idea_id"],
         user_id = g.user.id,
-        score = int(score["score"])
+        score = score["score"]
     )
     db.session.add(new_score)
     db.session.commit()

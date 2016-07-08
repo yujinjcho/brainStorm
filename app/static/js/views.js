@@ -272,7 +272,7 @@ var app = app || {};
 			
 			var idea = element.id.slice(1);
 			$('#c' + idea).hide(600);
-			var score = $('#' + element.id).rateYo("option", "rating")*2;
+			var score = $('#' + element.id).rateYo("option", "rating");
 
 			app.scoreList.create(this.ratedIdea(idea, score), {success: function(){
   	  	app.ratedIdeaList.fetch({wait:true, reset:true, success:function(){

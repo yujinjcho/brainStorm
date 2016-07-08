@@ -65,7 +65,7 @@ class Idea(db.Model):
         scores_for_idea = [score.score for score in self.scores]
         if len(scores_for_idea) == 0:
             return 0
-        return sum(scores_for_idea)/float(len(scores_for_idea))
+        return float(sum(scores_for_idea))/len(scores_for_idea)
 
     def json_view(self):
         score_format = '%.1f' % self.avg_score
@@ -80,7 +80,7 @@ class Idea(db.Model):
 
 class Score(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)
-    score = db.Column(db.Integer, nullable=False)
+    score = db.Column(db.Numeric(2,1), nullable=False)
     idea_id = db.Column(db.Integer, db.ForeignKey('idea.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
