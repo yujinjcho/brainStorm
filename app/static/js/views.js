@@ -238,8 +238,7 @@ var app = app || {};
 	    this.addSome();
 	  },
 	  events: {
-	    'keypress .score' : 'update_Score',
-	    'click .score' : 'update_Score2'
+	    'click .score' : 'update_Score'
 	  },
 	  ratedIdea: function(unranked_id, score) {
 	  	return {
@@ -247,24 +246,7 @@ var app = app || {};
 	  		"score": score
 	  	};
 	  },
-	  update_Score: function(e){
-		if (e.which !== 13 || 
-				e.target.value.trim() == "" || 
-				e.target.value > 10 ||
-				e.target.value < 0){
-	    	return;
-	    };
-			var idea = e.target.id.slice(1);
-	  	var score = e.target.value;
-	  	
-  	  app.scoreList.create(this.ratedIdea(idea, score), {success: function(){
-  	  	app.ratedIdeaList.fetch({wait:true, reset:true, success:function(){
-  	  		app.unratedIdeaList.remove(app.unratedIdeaList.get(parseInt(idea)));
-  	  	}});
-  	  }})
-	  	
-	  },
-	  update_Score2: function(e){			
+	  update_Score: function(e){			
 			var element = e.target;
 			while (element.id[0] != 'i') {
 				element = element.parentNode;
