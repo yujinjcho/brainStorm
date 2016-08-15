@@ -45,12 +45,6 @@ def get_current_user():
     g.user = current_user
 
 def get_sessions():
-    #get sessions created by logged in user
-    #sessions_q = IdeaSession.query.filter(
-    #    IdeaSession.creator_id == g.user.id
-    #).order_by(IdeaSession.created).all()
-
-    #get sessions that logged in user has received permission for
     permissions = Permission.query.filter(Permission.granted_id == g.user.id).all() 
     permission_set = set([p.idea_session_id for p in permissions])
     if not permissions:
@@ -58,8 +52,6 @@ def get_sessions():
     else:
         permitted_sessions = IdeaSession.query.filter(IdeaSession.id.in_(permission_set)).all()
 
-    #groups = sorted([s.json_view() for s in sessions_q + permitted_sessions], key=itemgetter('created'))
-    #group_ids = [int(s.id) for s in sessions_q + permitted_sessions]
     groups = sorted([s.json_view() for s in permitted_sessions], key=itemgetter('created'))
     group_ids = [int(s.id) for s in permitted_sessions]
 
@@ -110,6 +102,7 @@ def get_users(permissions):
     users = [u.json_view() for u in user_creators]
     return users
 
+#May be able to remove
 def clear_guest_data():
     sessions_q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id).all()
     session_set = [int(s.id) for s in sessions_q]
@@ -141,10 +134,11 @@ def guest_login():
         )
         db.session.add(user)
         db.session.commit()
+        
 
     login_user(user, remember=True)
-    clear_guest_data()
-    commit_session('Session 1', g.user.id)
+    #clear_guest_data()
+    
 
         
 @app.route('/')
@@ -182,14 +176,6 @@ def create_session():
     idea_session = request.get_json()
 
     new_idea_session = commit_session(name=idea_session['name'], id=g.user.id)
-
-    #new_idea_session = IdeaSession(name=idea_session['name'], creator_id=g.user.id)
-    #db.session.add(new_idea_session)
-    #db.session.commit()
-
-    #new_permission = commit_permission(g.user.id, new_idea_session.id)
-    #db.session.add(new_permission)
-    #db.session.commit()    
 
     idea_session["id"] = new_idea_session.id
     idea_session["created"] = new_idea_session.created
@@ -248,7 +234,6 @@ def create_score():
     db.session.commit()
     score['id'] = new_score.id
     score['user_id'] = g.user.id
-    #update_average(score["idea_id"])
     return _todo_response(score)
 
 def _todo_response(data):
@@ -335,13 +320,6 @@ def create_permissions():
         return _todo_response(permission)
 
     new_permission = commit_permission(permission['granted_id'], permission['session'])
-    #new_permission = Permission(
-    #    granted_id = permission['granted_id'],
-    #    idea_session_id = permission['session']
-    #)
-
-    #db.session.add(new_permission)
-    #db.session.commit()
     permission['id'] = new_permission.id
     return _todo_response(permission)
 

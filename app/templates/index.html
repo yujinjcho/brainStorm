@@ -196,7 +196,15 @@
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/rateYo/2.1.1/jquery.rateyo.min.js"></script>
 
 	  <script type="text/javascript">
-	    app.active_user = {{ user.id }}
+	    app.active_user = {{ user.id }};
+	    app.guest_session_counter = 1;
+	    app.guest_id_counter = 1;
+
+	    {% if user.auth_server_id == 'Guest' %}
+	    	app.guest = 1;
+	    {% else %}
+	    	app.guest = 0;
+	    {% endif %}
 
 	    app.sessionList.reset({{ sessions | tojson }});
 	    app.sessionListView = new app.SessionListView();

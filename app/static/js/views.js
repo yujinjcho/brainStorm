@@ -69,18 +69,32 @@ var app = app || {};
       if (e.which !==13 || !this.input.val().trim()){
         return;
       };
-      var newModel = app.sessionList.create(this.newSession(), {wait:true, success: function(model){
-        document.getElementById('new-idea').setAttribute('name', model.get('id'));
-        app.unratedIdeaListView.addSome();
-        app.ratedIdeaListView.addSome();
-        app.userListView.addSome();
-        app.sessionListView.sessionHighlight();
-        
-        app.permissionList.fetch({wait:true, success: function(){
-          app.userListView.addSome();
-        }})
-      }});
+      
+      if (app.guest === 0) {
+        var newModel = app.sessionList.create(this.newSession(), {wait:true, success: function(model){
+          document.getElementById('new-idea').setAttribute('name', model.get('id'));
+          this.updateSessionView();
+          app.permissionList.fetch({wait:true, success: function(){
+            app.userListView.addSome();
+          }})
+        }});
+      } else {
+        // If guest do not send to server, just add to collection
+        var newModel = new app.Session(this.newSession())
+        newModel.set({id: app.guest_session_counter});
+        app.guest_session_counter += 1;
+        app.sessionList.add(newModel);
+        document.getElementById('new-idea').setAttribute('name', newModel.get('id'));
+        this.updateSessionView();
+      };
+
       this.input.val('');
+    },
+    updateSessionView: function() {
+      app.unratedIdeaListView.addSome();
+      app.ratedIdeaListView.addSome();
+      app.userListView.addSome();
+      app.sessionListView.sessionHighlight();
     },
     newSession: function() {
       return {
@@ -138,7 +152,15 @@ var app = app || {};
         return;
       };
 
-      app.unratedIdeaList.create(this.newIdea(), {wait:true});
+      if (app.guest === 0) {
+        app.unratedIdeaList.create(this.newIdea(), {wait:true});  
+      } else {
+        newModel = new app.Idea(this.newIdea());
+        newModel.set({id: app.guest_id_counter, description: null, creator_id: app.active_user});
+        app.guest_id_counter += 1;
+        app.unratedIdeaList.add(newModel);
+      };
+      
       this.input.val('');
     },
     stopProp: function(e) {
@@ -182,8 +204,6 @@ var app = app || {};
       document.getElementById('permission-container').classList.add('no-show');
       document.getElementById('rated-container').classList.add('no-show');
       document.getElementById('unrated-container').classList.add('no-show');
-
-      
     },
     showUnratedIdeas: function(){
       app.unratedIdeaListView.hideContainers();
@@ -206,7 +226,13 @@ var app = app || {};
       var idea = e.target.id.slice(1);
       var description = e.target.value;
       var ideaModel = app.unratedIdeaList.get(idea);
-      ideaModel.save({'description':description});
+      
+      if (app.guest === 0) {
+        ideaModel.save({'description': description});
+      } else {
+        ideaModel.set({'description': description});
+      };
+      
       app.unratedIdeaListView.closeEditDescription(e);
       e.target.value = '';
     },
@@ -246,22 +272,36 @@ var app = app || {};
         "score": score
       };
     },
-    update_Score: function(e){      
+    update_Score: function(e){
       var element = e.target;
       while (element.id[0] != 'i') {
         element = element.parentNode;
       };
       
       var idea = element.id.slice(1);
-      $('#c' + idea).hide(600);
+
       var score = $('#' + element.id).rateYo("option", "rating");
 
-      app.scoreList.create(this.ratedIdea(idea, score), {success: function(){
-        app.ratedIdeaList.fetch({wait:true, reset:true, success:function(){
-          app.unratedIdeaList.remove(app.unratedIdeaList.get(parseInt(idea)));
-        }});
-      }})
-
+      if (app.guest === 0) {
+        $('#c' + idea).hide(600, function() {
+          app.scoreList.create(this.ratedIdea(idea, score), {success: function(){
+            app.ratedIdeaList.fetch({wait:true, reset:true, success:function(){
+              app.unratedIdeaList.remove(app.unratedIdeaList.get(parseInt(idea)));
+            }});
+          }});
+        });
+        
+        
+      } else {
+        // remove model from unrated list, add score, add to rated list
+        $('#c' + idea).hide(600, function() {
+          model = app.unratedIdeaList.get(idea);
+          model.set({score: score});
+          app.unratedIdeaList.remove(model)
+          app.ratedIdeaList.add(model);
+          app.ratedIdeaListView.addSome();
+        });
+      };
     },
     addOneIf: function(idea){
       if (app.active_session.name == idea.get('session')){
