@@ -133,12 +133,6 @@ def guest_login():
     db.session.commit()
     
 
-@app.route('/test_guest_session')
-def test_guest_session():
-    q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id)
-    return int(q.count())
-    return str(IdeaSession.query.filter(IdeaSession.id == g.user.id).count())
-
 @app.route('/')
 def index():
     if not g.user.is_authenticated:
@@ -211,14 +205,6 @@ def update_description(idea_id):
     db.session.commit()
     idea["id"] = update_idea.id
     return _todo_response(idea)
-
-def update_average(idea_id):
-    idea = Idea.query.filter_by(id=idea_id).first()
-    scores_q = idea.scores.all()
-    scores = [score.score for score in scores_q]
-    idea.avg_score = sum(scores)/float(len(scores))
-    db.session.commit()
-    return idea.avg_score
 
 @app.route('/scores', methods=['POST'])
 def create_score():
@@ -337,24 +323,5 @@ def update_permissions():
     return jsonify(permissions)
 
 
-@app.route('/test_users')
-def create_test_users():
-    for i in range(25,30):
-        new_user = User(
-            auth_server_id='TEST',
-            name='user' + str(i),
-            email='email' + str(i),
-            profile_pic='http://www.lcfc.com/images/common/bg_player_profile_default_big.png'
-        )  
 
-        db.session.add(new_user)
-        db.session.commit()
 
-    return 'test users created'
-
-@app.route('/test_cascade')
-def test_cascade():
-    user = User.query.filter(User.email == 'yujinjcho@gmail.com').first()
-    db.session.delete(user)
-    db.session.commit()
-    return 'deleted user'
