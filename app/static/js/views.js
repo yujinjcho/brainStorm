@@ -73,7 +73,11 @@ var app = app || {};
       if (app.guest === 0) {
         var newModel = app.sessionList.create(this.newSession(), {wait:true, success: function(model){
           document.getElementById('new-idea').setAttribute('name', model.get('id'));
-          this.updateSessionView();
+          app.unratedIdeaListView.addSome();
+          app.ratedIdeaListView.addSome();
+          app.userListView.addSome();
+          app.sessionListView.sessionHighlight();
+        
           app.permissionList.fetch({wait:true, success: function(){
             app.userListView.addSome();
           }})

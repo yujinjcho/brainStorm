@@ -102,16 +102,6 @@ def get_users(permissions):
     users = [u.json_view() for u in user_creators]
     return users
 
-#May be able to remove
-def clear_guest_data():
-    sessions_q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id).all()
-    session_set = [int(s.id) for s in sessions_q]
-    scores = Score.query.filter(Score.user_id == g.user.id).delete(synchronize_session=False)
-    permissions_q = Permission.query.filter(Permission.granted_id == g.user.id).delete(synchronize_session=False)
-    unrated_q = Idea.query.filter(Idea.idea_session_id.in_(set(session_set))).delete(synchronize_session=False)
-    sessions_q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id).delete(synchronize_session=False)
-    db.session.commit()
-
 def commit_session(name, id):
     new_idea_session = IdeaSession(name=name, creator_id=id)
     db.session.add(new_idea_session)
@@ -133,14 +123,22 @@ def guest_login():
             profile_pic='Guest'
         )
         db.session.add(user)
-        db.session.commit()
-        
-
+    
     login_user(user, remember=True)
-    #clear_guest_data()
+
+    #guest_sessions = IdeaSession.query.filter(IdeaSession.creator_id == user.id).count()    
+    #if int(guest_sessions) == 0:
+    #commit_session(name="Session 1", id=user.id)
+
+    db.session.commit()
     
 
-        
+@app.route('/test_guest_session')
+def test_guest_session():
+    q = IdeaSession.query.filter(IdeaSession.creator_id == g.user.id)
+    return int(q.count())
+    return str(IdeaSession.query.filter(IdeaSession.id == g.user.id).count())
+
 @app.route('/')
 def index():
     if not g.user.is_authenticated:

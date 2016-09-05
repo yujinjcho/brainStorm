@@ -197,27 +197,33 @@
 
 	  <script type="text/javascript">
 	    app.active_user = {{ user.id }};
-	    app.guest_session_counter = 1;
-	    app.guest_id_counter = 1;
-
-	    {% if user.auth_server_id == 'Guest' %}
-	    	app.guest = 1;
-	    {% else %}
-	    	app.guest = 0;
-	    {% endif %}
 
 	    app.sessionList.reset({{ sessions | tojson }});
 	    app.sessionListView = new app.SessionListView();
 
-	    app.unratedIdeaList.reset( {{ unrated | tojson }} );
-	    app.unratedIdeaListView = new app.UnratedIdeaListView();
+      app.unratedIdeaList.reset( {{ unrated | tojson }} );
+      app.unratedIdeaListView = new app.UnratedIdeaListView();
 
-	    app.ratedIdeaList.reset( {{ rated | tojson }} );
-	    app.ratedIdeaListView = new app.RatedIdeaListView();
+      app.ratedIdeaList.reset( {{ rated | tojson }} );
+      app.ratedIdeaListView = new app.RatedIdeaListView();
 
-			app.userListView = new app.UserListView();
-		  app.permissionList.reset( {{ permissions | tojson }} );
-			app.userList.reset( {{ users | tojson }}, {wait:true} );
+  		app.userListView = new app.UserListView();
+  	  app.permissionList.reset( {{ permissions | tojson }} );
+  		app.userList.reset( {{ users | tojson }}, {wait:true} );
+
+  		
+  		app.guest_session_counter = 1;
+  		app.guest_id_counter = 1;
+	    {% if user.auth_server_id == 'Guest' %}
+	    	app.guest = 1;
+	    	app.sessionList.add({name: 'Session 1', id: 0})
+	    	document.getElementById('new-idea').setAttribute('name', 0);
+	    	app.sessionListView.updateSessionView();
+	    {% else %}
+	    	app.guest = 0;
+	    {% endif %}
+
+	    
 
 	  </script>
 	  <script src="{{ url_for('static', filename='js/user-search.js') }}"></script>
