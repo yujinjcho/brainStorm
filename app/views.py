@@ -1,3 +1,8 @@
+"""Idea Storm is a web application that allows a user to create ideas,
+add other users to a session, and collaboratively rank ideas.
+
+"""
+
 from operator import itemgetter
 import json
 from flask import (
@@ -29,11 +34,13 @@ from models import (
 
 @app.route('/logout')
 def logout():
+    """Logout current user"""
     logout_user()
     return redirect(url_for('index'))
 
 @app.before_request
 def get_current_user():
+    """Assign current user to g object"""
     ########################################
     #FOR TESTING PURPOSES
     #user = User.query.filter(User.name == 'user25').first()
@@ -45,6 +52,7 @@ def get_current_user():
     g.user = current_user
 
 def get_sessions():
+    """Get sessions for current user based on permissions"""
     permissions = Permission.query.filter(Permission.granted_id == g.user.id).all() 
     permission_set = set([p.idea_session_id for p in permissions])
     if not permissions:
@@ -63,6 +71,11 @@ def get_sessions():
     return active_session, group_ids, groups
 
 def get_ideas(group_ids):
+    """Get ideas for current user based on idea session ids and
+    separate ideas into ranked and not ranked groups
+
+    :param list group_ids: idea session ids
+    """
     scores = Score.query.filter(Score.user_id == g.user.id).all()
     scored_ideas = [score.idea_id for score in scores]
     unrated_q = Idea.query.filter(Idea.idea_session_id.in_(set(group_ids))).all()
@@ -78,6 +91,10 @@ def get_ideas(group_ids):
     return unrated_ideas, rated_ideas
 
 def get_permissions(group_ids):
+    """Get permissions associated with various idea sessions
+
+    :param list group_ids: idea session ids
+    """
     all_permissions = Permission.query.all()
     
     if not all_permissions:
@@ -98,11 +115,21 @@ def get_permissions(group_ids):
 
 
 def get_users(permissions):
+    """Get users associated with given permissions
+
+    :param list permissions: permission ids
+    """
     user_creators = User.query.all()
     users = [u.json_view() for u in user_creators]
     return users
 
 def commit_session(name, id):
+    """Saves newly created session and permission to db. Returns
+    newly created session.
+
+    :param str name: name of idea session
+    :param int id: user id of creator
+    """
     new_idea_session = IdeaSession(name=name, creator_id=id)
     db.session.add(new_idea_session)
     db.session.commit()
@@ -114,6 +141,9 @@ def commit_session(name, id):
     return new_idea_session
 
 def guest_login():
+    """Logs in user as guest user. Create guest account if it 
+    doesn't exist.
+    """
     user = User.query.filter(User.email == 'guest_account').first()
     if not user:
         user = User(
@@ -125,16 +155,18 @@ def guest_login():
         db.session.add(user)
     
     login_user(user, remember=True)
-
-    #guest_sessions = IdeaSession.query.filter(IdeaSession.creator_id == user.id).count()    
-    #if int(guest_sessions) == 0:
-    #commit_session(name="Session 1", id=user.id)
-
     db.session.commit()
     
 
 @app.route('/')
 def index():
+    """Returns page based on logged in user
+
+    Sets active user. Finds idea sessions for active user.
+    Finds ideas associated with sessions based on whether
+    user voted on or not. Find permissions for idea sessions.
+    Get information for other users based on permissions.
+    """
     if not g.user.is_authenticated:
         guest_login()
         return redirect(url_for('index'))
@@ -158,13 +190,15 @@ def index():
 
 @app.route('/users')
 def update_users():
+    """Return users associated with session ides in JSON"""
     active_session, group_ids, groups = get_sessions()
     permissions = get_permissions(group_ids)
     users = get_users(permissions)
     return jsonify(users)
 
 @app.route('/sessions', methods=['POST'])
-def create_session():    
+def create_session():
+    """Receives JSON from client and creates new idea session"""    
     idea_session = request.get_json()
 
     new_idea_session = commit_session(name=idea_session['name'], id=g.user.id)
@@ -176,13 +210,16 @@ def create_session():
     return _todo_response(idea_session)
 
 @app.route('/ideas')
-def get_idea_score():    
+def get_idea_score():   
+    """Returns rated ideas in JSON""" 
     active_session, group_ids, groups = get_sessions()
     unrated_ideas, rated_ideas = get_ideas(group_ids)
     return jsonify(rated_ideas)
 
 @app.route('/ideas', methods=['POST'])
 def create_idea():
+    """Receives JSON and stores new Idea to db"""
+
     idea = request.get_json()
     new_idea = Idea(
         idea_session_id = idea['session'],
@@ -198,6 +235,7 @@ def create_idea():
 
 @app.route('/ideas/<int:idea_id>', methods=['PUT'])
 def update_description(idea_id):
+    """Receives JSON and updates description for a specified idea"""
     idea = request.get_json()
     update_idea = Idea.query.filter(Idea.id == idea_id).first()
     update_idea.description = idea['description']
@@ -208,6 +246,7 @@ def update_description(idea_id):
 
 @app.route('/scores', methods=['POST'])
 def create_score():
+    """Creates a new score for a specified idea"""
     score = request.get_json()
     new_score = Score(
         idea_id = score["idea_id"],
@@ -221,10 +260,15 @@ def create_score():
     return _todo_response(score)
 
 def _todo_response(data):
+    """Returns data in JSON format"""
     return jsonify(**data)
 
 @app.route('/login')
 def login():
+    """Redirects user to FB auth. process if new user or else will
+    automaticaly log user in.
+
+    """
     callback = url_for(
         'facebook_authorized',
         next=request.args.get('next')
@@ -236,6 +280,7 @@ def login():
 
 @app.route('/login/fb_authorized')
 def facebook_authorized():
+    """Manages fb response for auth request"""
     resp = facebook.authorized_response()
     if resp is None:
         return 'Access denied: reason=%s error=%s' % (
@@ -251,9 +296,11 @@ def facebook_authorized():
 
 @facebook.tokengetter
 def get_facebook_oauth_token():
+    """Gets OAuth token"""
     return session.get('oauth_token')
 
 def set_user(me):
+    """After successful Auth. process, logs in user"""
     user = User.query.filter_by(
         auth_server_id=me.data['id']
     ).first()
@@ -263,7 +310,8 @@ def set_user(me):
     login_user(user, remember=True)
     return redirect(url_for('index'))
 
-def create_user(me):  
+def create_user(me): 
+    """creates new user and stores to db""" 
     new_user = User(
         auth_server_id=me.data['id'],
         name=me.data['name'],
@@ -279,10 +327,12 @@ def create_user(me):
 
 @lm.user_loader
 def load_user(id):
+    """Queries db and returns user based on id"""
     return User.query.get(int(id))
 
 @app.route('/autocomplete/countries')
 def autocomplete_countries():
+    """Returns users that fit criteria for autocomplete search"""
     query = request.args.get('query')
     query_term = '%'+'%'.join(query.split('+'))+'%'
     users = User.query.filter(User.name.ilike(query_term)).all()
@@ -292,6 +342,7 @@ def autocomplete_countries():
 
 @app.route('/permissions', methods=['POST'])
 def create_permissions():
+    """Creates a permission for a user when granted by another user"""
     permission = request.get_json()
     permission_q = Permission.query.filter(
         Permission.granted_id == permission['granted_id']
@@ -308,6 +359,11 @@ def create_permissions():
     return _todo_response(permission)
 
 def commit_permission(id, idea_session_id):
+    """Save newly created permission to db
+
+    :param int id: id for user who receives permission
+    :param int idea_session_id: id for associated session
+    """
     new_permission = Permission(
         granted_id = id,
         idea_session_id = idea_session_id
@@ -318,6 +374,7 @@ def commit_permission(id, idea_session_id):
 
 @app.route('/permissions')
 def update_permissions():
+    """Returns most current permissions in JSON format"""
     active_session, group_ids, groups = get_sessions()
     permissions = get_permissions(group_ids)
     return jsonify(permissions)
