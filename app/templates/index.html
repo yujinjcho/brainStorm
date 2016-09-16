@@ -201,14 +201,14 @@
 	    app.sessionList.reset({{ sessions | tojson }});
 	    app.sessionListView = new app.SessionListView();
 
-      app.unratedIdeaList.reset( {{ unrated | tojson }} );
-      app.unratedIdeaListView = new app.UnratedIdeaListView();
+    	app.unratedIdeaList.reset( {{ unrated | tojson }} );
+      	app.unratedIdeaListView = new app.UnratedIdeaListView();
 
-      app.ratedIdeaList.reset( {{ rated | tojson }} );
-      app.ratedIdeaListView = new app.RatedIdeaListView();
+      	app.ratedIdeaList.reset( {{ rated | tojson }} );
+	    app.ratedIdeaListView = new app.RatedIdeaListView();
 
   		app.userListView = new app.UserListView();
-  	  app.permissionList.reset( {{ permissions | tojson }} );
+  	  	app.permissionList.reset( {{ permissions | tojson }} );
   		app.userList.reset( {{ users | tojson }}, {wait:true} );
 
   		
