@@ -328,6 +328,8 @@ def create_user(me):
 @lm.user_loader
 def load_user(id):
     """Queries db and returns user based on id"""
+    if id == "None":
+        return None
     return User.query.get(int(id))
 
 @app.route('/autocomplete/countries')
@@ -336,7 +338,7 @@ def autocomplete_countries():
     query = request.args.get('query')
     query_term = '%'+'%'.join(query.split('+'))+'%'
     users = User.query.filter(User.name.ilike(query_term)).all()
-    users_list = [{"value": user.name, "id":user.id} for user in users]
+    users_list = [{"value": user.name, "id":user.id} for user in users if user.auth_server_id != 'Guest']
     response = { "suggestions": users_list}
     return jsonify(response)
 
@@ -344,6 +346,7 @@ def autocomplete_countries():
 def create_permissions():
     """Creates a permission for a user when granted by another user"""
     permission = request.get_json()
+
     permission_q = Permission.query.filter(
         Permission.granted_id == permission['granted_id']
     ).filter(

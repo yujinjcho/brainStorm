@@ -288,7 +288,7 @@ var app = app || {};
 
       if (app.guest === 0) {
         $('#c' + idea).hide(600, function() {
-          app.scoreList.create(this.ratedIdea(idea, score), {success: function(){
+          app.scoreList.create(app.ratedIdeaListView.ratedIdea(idea, score), {success: function(){
             app.ratedIdeaList.fetch({wait:true, reset:true, success:function(){
               app.unratedIdeaList.remove(app.unratedIdeaList.get(parseInt(idea)));
             }});
