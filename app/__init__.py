@@ -3,8 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_oauthlib.client import OAuth
 from flask.ext.login import LoginManager
 
+from raven.contrib.flask import Sentry
+
+
 app = Flask(__name__, static_url_path='')
 app.config.from_object('config')
+
+sentry = Sentry(app, dsn=app.config.get('SENTRY_DSN'))
+sentry.init_app(app)
 
 lm = LoginManager()
 lm.init_app(app)
